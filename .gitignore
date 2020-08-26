@@ -42,4 +42,5 @@ vignettes/*.pdf
 /data/raw/early
 /data/raw/obs/DR_Lima_QC1.csv
 /papers
+# To heavy shapes
 /data/shapes
