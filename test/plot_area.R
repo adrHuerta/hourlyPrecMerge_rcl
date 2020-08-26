@@ -3,18 +3,14 @@ library(maptools)
 library(rasterVis)
 library(viridis)
 library(grid)
-#library(rgdal)
 
 #read shapefiles
-#xySpD  <- readShapeSpatial("./data/raw/obs/XY/SPDF")
 basins <- readShapeSpatial("./data/shapes/CHIRILU")
 border <- readShapeLines("./data/shapes/DEPARTAMENTOS")
 watershed <- readShapeSpatial("./data/shapes/Lakesperu")
 rivers<- readShapeSpatial("./data/shapes/rios_CRL")
-
+#read raster
 r<-raster("./data/shapes/chirilu_ProjectRaster.tif")
-#projection(chirilu)
-
 
 yat <- round(seq(extent(r)@ymin, 
                 extent(r)@ymax, length.out = 5),3)
@@ -29,7 +25,7 @@ text2 <- list("sp.text", c(-76.04,-12.25), "10 km")
 
 arrow = list("SpatialPolygonsRescale", layout.north.arrow(),
              offset = c(-11.5,-76.6), scale = 0.5, which = 2)
-
+#plot map
 spplot(r, col.regions = viridis_pal(option="D")(255),
        panel = function(...){
          panel.levelplot(...)
