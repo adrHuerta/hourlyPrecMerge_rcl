@@ -6,7 +6,8 @@
     - [ ] Study area
     - [ ] Stations
     - [ ] GPM-early
-- [] Plots of QC observed data (Sandra)
-    - [ ] Seasonal boxplot (may we change months, this would help to us to decide)
+
+- [ ] Plots of QC observed data (Sandra)
+    - [ ] Seasonal boxplot (may we change the rainy months, this would help to us to decide)
     - [ ] Spatial/temporal variability of no missing data
 
