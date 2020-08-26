@@ -1,7 +1,7 @@
-# agregando script
+obs_data <- readRDS("./data/raw/obs/obs_data.rds")
+obs_data$value[1,]
 
-library(xts)
+# deleting negative values
+# extremes values
+# spatial coherence
 
-obs <- read.csv("./data/raw/obs/DR_Lima_QC1.csv")
-head(obs)
-matplot(obs[,2])
