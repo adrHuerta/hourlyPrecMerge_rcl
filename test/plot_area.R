@@ -5,12 +5,12 @@ library(viridis)
 library(grid)
 
 #read shapefiles
-basins <- readShapeSpatial("./data/shapes/CHIRILU")
-border <- readShapeLines("./data/shapes/DEPARTAMENTOS")
-watershed <- readShapeSpatial("./data/shapes/Lakesperu")
-rivers<- readShapeSpatial("./data/shapes/rios_CRL")
+basins <- rgdal::readOGR("./data/shapes/CHIRILU.shp", "CHIRILU")
+border <- rgdal::readOGR("./data/shapes/DEPARTAMENTOS.shp", "DEPARTAMENTOS")
+watershed <- rgdal::readOGR("./data/shapes/lakesperu.shp", "lakesperu")
+rivers<- rgdal::readOGR("./data/shapes/rios_CRL.shp", "rios_CRL")
 #read raster
-r<-raster("./data/shapes/chirilu_ProjectRaster.tif")
+r <- raster::raster("./data/shapes/chirilu_ProjectRaster.tif")
 
 yat <- round(seq(extent(r)@ymin, 
                 extent(r)@ymax, length.out = 5),3)
@@ -26,7 +26,8 @@ text2 <- list("sp.text", c(-76.04,-12.25), "10 km")
 arrow = list("SpatialPolygonsRescale", layout.north.arrow(),
              offset = c(-11.5,-76.6), scale = 0.5, which = 2)
 #plot map
-spplot(r, col.regions = viridis_pal(option="D")(255),
+spplot(r, at = seq(0, 6000, 500),
+       col.regions = viridis_pal(option="D")(255),
        panel = function(...){
          panel.levelplot(...)
          panel.abline(h = yat, v = xat, col = "grey0", lwd = 0.8, lty = 3) 
@@ -37,7 +38,7 @@ spplot(r, col.regions = viridis_pal(option="D")(255),
        xlim=c(-77.4,-76.0),ylim=c(-12.4,-11.1))+
       layer(sp.polygons(basins, lwd=0.8))+
       layer(sp.polygons(border, lwd=0.8))+
-      layer(sp.polygons(watershed, lwd=0.8,col = "blue"))+
+      # layer(sp.polygons(watershed, lwd=0.8,col = "blue")) + # may to heavy, it is up to you :D 
       layer(sp.polygons(rivers, lwd=0.8))
       grid.text("altitud(m.s.n.m)", x=unit(0.95, "npc"), y=unit(0.50, "npc"), rot=-90)
 
