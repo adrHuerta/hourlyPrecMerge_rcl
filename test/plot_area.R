@@ -27,11 +27,11 @@ text1 <- list("sp.text", c(-76.99,-11.22), "Lagunas naturales",cex=0.8)
 text2 <- list("sp.text", c(-76.99,-11.29), "Rios principales",cex=0.8)
 text3 <- list("sp.text", c(-76.5,-12.29), "0",cex=0.6)
 text4 <- list("sp.text", c(-76.1,-12.29), "20 km",cex=0.6)
-sp.label <- function(x, label) {list("sp.text", coordinates(x), label,cex=0.6)}
+sp.label <- function(x, label) {list("sp.text", coordinates(x), label,cex=0.8)}
 
 
 #Create the plot 
-png("./scripts/plot/study_area.png")
+png("./scripts/plot/study_area.png",width=531,height=350)
 spplot(r,col.regions = viridis_pal(option="D")(255),
        scales = list(x = list(at = xat),
                      y = list(at = yat)),
@@ -44,8 +44,9 @@ spplot(r,col.regions = viridis_pal(option="D")(255),
    layer(sp.polygons(rivers, lwd=0.8,col="navy"))+
    layer(sp.polygons(riverleyend, lwd=1.0,col="navy"))+
    layer(sp.polygons(lakeleyend, lwd=0.8,col="dodgerblue1",fill="dodgerblue1"))
-   grid.text("altitud(m.s.n.m)", x=unit(1.0, "npc"), y=unit(0.50, "npc"),gp=gpar(fontsize=8), rot=-90)
-
+   grid.text("altitud(m.s.n.m)", x=unit(0.93, "npc"), y=unit(0.50, "npc"),gp=gpar(fontsize=9), rot=-90)
+   grid.text("Cuenca Alto Mantaro", x=unit(0.7, "npc"), y=unit(0.70, "npc"),gp=gpar(fontsize=8))
+   
 dev.off()
 
 
