@@ -1,3 +1,6 @@
+# if this script is ok, added to ./scripts/plot/"same_name"
+# the ouput (that is the .png), should be added at ./data/output/plots (add to gitignore!)
+
 
 library(maptools)
 library(rasterVis)
@@ -10,7 +13,7 @@ border <- readShapePoly("./data/shapes/DEPARTAMENTOS")
 provs <- readShapePoly("./data/shapes/PROVINCIAS")
 lakes <- readShapePoly("./data/shapes/Lakesperu")
 rivers <- readShapeSpatial("./data/shapes/rios_CRL")
-riverleyend <- readShapeSpatial("./data/shapes/riosleyend") # do you know another way to add legend ?
+riverleyend <- readShapeSpatial("./data/shapes/riosleyend") # do you know another way to add legend ? No D: jajaja, I dont tend to use too many legends, be practical, do not worry :)
 lakeleyend <- readShapePoly("./data/shapes/lake")
 #read raster
 r <- raster("./data/shapes/chirilu_ProjectRaster.tif")
