@@ -5,41 +5,49 @@ library(viridis)
 library(grid)
 
 #read shapefiles
-basins <- rgdal::readOGR("./data/shapes/CHIRILU.shp", "CHIRILU")
-border <- rgdal::readOGR("./data/shapes/DEPARTAMENTOS.shp", "DEPARTAMENTOS")
-watershed <- rgdal::readOGR("./data/shapes/lakesperu.shp", "lakesperu")
-rivers<- rgdal::readOGR("./data/shapes/rios_CRL.shp", "rios_CRL")
+basins <- readShapeSpatial("./data/shapes/CHIRILU")
+border <- readShapePoly("./data/shapes/DEPARTAMENTOS")
+provs <- readShapePoly("./data/shapes/PROVINCIAS")
+lakes <- readShapePoly("./data/shapes/Lakesperu")
+rivers <- readShapeSpatial("./data/shapes/rios_CRL")
+riverleyend <- readShapeSpatial("./data/shapes/riosleyend") # do you know another way to add legend ?
+lakeleyend <- readShapePoly("./data/shapes/lake")
 #read raster
-r <- raster::raster("./data/shapes/chirilu_ProjectRaster.tif")
+r <- raster("./data/shapes/chirilu_ProjectRaster.tif")
 
+#coords
 yat <- round(seq(extent(r)@ymin, 
-                extent(r)@ymax, length.out = 5),3)
+                 extent(r)@ymax, length.out = 3),2)
 xat <- round(seq(extent(r)@xmin, 
-                extent(r)@xmax, length.out = 5),2)
-scale <- list("SpatialPolygonsRescale",
-              layout.scale.bar(height=0.05),
-              offset = c(-76.20,-12.25),
-              scale = 5000, fill=c("transparent","black"))
-text1 <- list("sp.text", c(-76.33,-12.25), "0")
-text2 <- list("sp.text", c(-76.04,-12.25), "10 km")
+                 extent(r)@xmax, length.out = 3),2)
+#layouts
+arrow = list("SpatialPolygonsRescale", layout.north.arrow(type=1), offset = c(-76.09,-11.3), scale=0.1)
+scale <- list("SpatialPolygonsRescale",layout.scale.bar(),offset = c(-76.5,-12.28),scale = 0.4, fill=c("black","white"))
+text1 <- list("sp.text", c(-76.99,-11.22), "Lagunas naturales",cex=0.8)
+text2 <- list("sp.text", c(-76.99,-11.29), "Rios principales",cex=0.8)
+text3 <- list("sp.text", c(-76.5,-12.29), "0",cex=0.6)
+text4 <- list("sp.text", c(-76.1,-12.29), "20 km",cex=0.6)
+sp.label <- function(x, label) {list("sp.text", coordinates(x), label,cex=0.6)}
 
-arrow = list("SpatialPolygonsRescale", layout.north.arrow(),
-             offset = c(-11.5,-76.6), scale = 0.5, which = 2)
-#plot map
-spplot(r, at = seq(0, 6000, 500),
-       col.regions = viridis_pal(option="D")(255),
-       panel = function(...){
-         panel.levelplot(...)
-         panel.abline(h = yat, v = xat, col = "grey0", lwd = 0.8, lty = 3) 
-       },
+
+#Create the plot 
+png("./scripts/plot/study_area.png")
+spplot(r,col.regions = viridis_pal(option="D")(255),
        scales = list(x = list(at = xat),
                      y = list(at = yat)),
-       sp.layout=arrow,
-       xlim=c(-77.4,-76.0),ylim=c(-12.4,-11.1))+
-      layer(sp.polygons(basins, lwd=0.8))+
-      layer(sp.polygons(border, lwd=0.8))+
-      # layer(sp.polygons(watershed, lwd=0.8,col = "blue")) + # may to heavy, it is up to you :D 
-      layer(sp.polygons(rivers, lwd=0.8))
-      grid.text("altitud(m.s.n.m)", x=unit(0.95, "npc"), y=unit(0.50, "npc"), rot=-90)
+       sp.layout=list(list(provs, col="white",fill="gray87", first=TRUE),arrow,scale,
+       text1,text2,text3,text4,sp.label(basins,basins$NOMBRE)),
+       xlim=c(-77.4,-76.0),ylim=c(-12.32,-11.1))+
+   layer(sp.polygons(border, lwd=0.8))+
+   layer(sp.polygons(basins, lwd=0.8))+
+   layer(sp.polygons(lakes, lwd=0.8,col="dodgerblue1",fill = "dodgerblue1"))+
+   layer(sp.polygons(rivers, lwd=0.8,col="navy"))+
+   layer(sp.polygons(riverleyend, lwd=1.0,col="navy"))+
+   layer(sp.polygons(lakeleyend, lwd=0.8,col="dodgerblue1",fill="dodgerblue1"))
+   grid.text("altitud(m.s.n.m)", x=unit(1.0, "npc"), y=unit(0.50, "npc"),gp=gpar(fontsize=8), rot=-90)
+
+dev.off()
+
+
 
       
