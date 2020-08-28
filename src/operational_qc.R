@@ -1,7 +1,7 @@
-qc_internal_consistency_check <- function(spatial_point)
+qc_internal_consistency_check <- function(spatial_point) # spatial_point is obs_data$xyz ? 
 {
   
-  obs_value <- spatial_point@data[, "OBS"]
+  obs_value <- spatial_point@data[, "OBS"]    # or spatial_point is obs_data$value , "OBS" is CODE ?
   obs_value <- ifelse(obs_value < 0 | obs_value > 305, NA,  obs_value)
   spatial_point@data[, "OBS"] <- obs_value
   spatial_point#[complete.cases(spatial_point@data), ]
