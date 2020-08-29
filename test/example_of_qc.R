@@ -23,12 +23,12 @@ example_obj$DATE <- as.character(time(example_event))
 example_obj$OBS <- as.numeric(example_event)
 
 # non-QC dataplot
-spplot(example_obj[, "OBS"]) 
+spplot(example_obj[, "OBS"])
 
 ## quality control
 
 # getting daily max value by month from PPISCO (only need one time)
-ppisco_p <- raster::brick("./data/shapes/PPISCOp_sample.nc")
+ppisco_p <- raster::brick("./data/shapes/PPISCOp_sample.nc") #Piscopd.nc for example PISCOp_V2.1_beta estable
 ppisco_p <- raster::setZ(ppisco_p, seq(as.Date("1981-01-01"), as.Date("2016-12-31"), by = "day"))
 ppisco_p_max_monthly <- raster::zApply(ppisco_p, by = format(ppisco_p@z$time, "%m"), fun = max)
 
@@ -36,7 +36,7 @@ daily_max_monthly <- data.frame(raster::extract(ppisco_p_max_monthly, example_ob
 rownames(daily_max_monthly) <- example_obj@data$CODE
 
 # applying qc
-example_obj %>%
+example_obj %>% #need to change coordinates here with file Pisco
   qc_internal_consistency_check(spatial_point = .) %>%
   qc_extreme_check(spatial_point = ., 
                    daily_monthly_limits = daily_max_monthly) %>%
@@ -45,5 +45,6 @@ example_obj %>%
 # QC dataplot
 spplot(example_obj_qc[, "OBS"])
 
+save(example_obj,example_obj_qc, file="./data/output/example_qc.RData")
 ## 
 # non-QC dataplot y QC dataplot should be shown in the report as example of qc
