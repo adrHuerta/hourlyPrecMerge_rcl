@@ -5,9 +5,11 @@
 - [ ] Plots of raw observed/satellite data (Sandra)
     - [X] Study area
     - [X] Stations
-    - [ ] GPM-early
+    - [X] GPM-early
 
 - [ ] Plots of QC observed data (Sandra)
-    - [ ] Seasonal boxplot (may we change the rainy months, this would help to us to decide)
-    - [ ] Spatial/temporal variability of no missing data
+    - ~~[ ] Seasonal boxplot (may we change the rainy months, this would help to us to decide)~~
+    - [ ] example of qc: plot of raw/qc data 
+    - [ ] temporal variability of no missing data
+    - [ ] plot of gpm-early in the study area (can be on time o some event, it's up to u)
 
