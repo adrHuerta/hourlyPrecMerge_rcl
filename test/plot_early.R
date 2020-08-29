@@ -18,3 +18,4 @@ levelplot(r, par.settings = myTheme2, margin = FALSE, main = expression("Precipi
 
 bPols <- map2SpatialPolygons(border, IDs=border$DEPARTAMEN,proj4string=CRS("+proj=longlat +datum=WGS84"))
 
+levelplot+bPols
