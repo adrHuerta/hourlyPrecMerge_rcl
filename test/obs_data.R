@@ -48,14 +48,14 @@ spplot(example_data[, "OBS"])
 
 obs_data_qc <- obs_data
 
-for(i in 7208:dim(obs_data$value)[1]){
+for(i in 26304:dim(obs_data$value)[1]){
   
   xyz <- obs_data$xyz[, c("CODE", "LAT", "LON")]
   step_time <- obs_data$value[i,]
   xyz$DATE <- as.character(time(step_time))
   xyz$OBS <- as.numeric(step_time)
   
-  if(all(is.na(step_time)) | (sum(step_time, na.rm = TRUE) == 0)){
+  if(all(is.na(step_time)) | (sum(!is.na(step_time)) < 5)){
     
     next
     

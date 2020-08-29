@@ -30,10 +30,10 @@ qc_spatial_consistency <- function(spatial_point,
   
   # creating gridded area
   rgrid <- raster::raster(ncol = 50, nrow = 50, 
-                          xmx = extent(spatial_point)[2], 
-                          xmn = extent(spatial_point)[1], 
-                          ymn = extent(spatial_point)[3], 
-                          ymx = extent(spatial_point)[4])
+                          xmx = raster::extent(spatial_point)[2], 
+                          xmn = raster::extent(spatial_point)[1], 
+                          ymn = raster::extent(spatial_point)[3], 
+                          ymx = raster::extent(spatial_point)[4])
   raster::values(rgrid) <- NA
   raster::projection(rgrid) <- raster::projection(spatial_point)
   
@@ -78,7 +78,7 @@ qc_spatial_consistency <- function(spatial_point,
                                                    locations = spatial_point_cc[-c(x, z), ])
                                
                                idw <- raster::interpolate(rgrid, gsO)
-                               round(extract(idw, to_validate), 1)
+                               round(raster::extract(idw, to_validate), 1)
                                
                              })
       
