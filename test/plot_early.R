@@ -1,7 +1,5 @@
-# Load libraries
-library('rasterVis')
 
-# 
+
 # foldersat="./data/raw/early/2017/02"
 # list_rasters <- list.files() %>%
 #                .[match(foldersat,.)] %>%
