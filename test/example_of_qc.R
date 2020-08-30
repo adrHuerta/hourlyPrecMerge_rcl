@@ -28,14 +28,14 @@ spplot(example_obj[, "OBS"])
 ## quality control
 
 # getting daily max value by month from PPISCO (only need one time)
-ppisco_p <- raster::brick("./data/shapes/PPISCOp_sample.nc") #Piscopd.nc for example PISCOp_V2.1_beta estable
+ppisco_p <- raster::brick("./data/shapes/PPISCOp_sample.nc") 
 ppisco_p <- raster::setZ(ppisco_p, seq(as.Date("1981-01-01"), as.Date("2016-12-31"), by = "day"))
 ppisco_p_max_monthly <- raster::zApply(ppisco_p, by = format(ppisco_p@z$time, "%m"), fun = max)
 
 daily_max_monthly <- data.frame(raster::extract(ppisco_p_max_monthly, example_obj))
 rownames(daily_max_monthly) <- example_obj@data$CODE
 
-# applying qc
+# applying qc # me aparece el error  Error in predict.gstat(model, blockvals, debug.level = debug.level, ...) 
 example_obj %>% #need to change coordinates here with file Pisco
   qc_internal_consistency_check(spatial_point = .) %>%
   qc_extreme_check(spatial_point = ., 
@@ -47,7 +47,7 @@ spplot(example_obj_qc[, "OBS"])
 
 # save them as .rds as a list(qc=example_obj_qc,no_qc = example_obj),
 # I know is the same, but load and save are not recommendable
-save(example_obj,example_obj_qc, file="./data/output/example_qc.RData")
+saveRDS(list(qc=example_obj_qc,no_qc = example_obj), file="./data/output/example_qc.rds")
 
 ## 
 # non-QC dataplot y QC dataplot should be shown in the report as example of qc
