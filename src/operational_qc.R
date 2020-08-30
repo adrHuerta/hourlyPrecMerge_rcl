@@ -24,8 +24,7 @@ qc_extreme_check <- function(spatial_point,
 }
 
 qc_spatial_consistency <- function(spatial_point,
-                                   threshold = 125,
-                                   neighborhood = 0.5)
+                                   threshold = 125)
 {
   
   # creating gridded area
@@ -42,8 +41,8 @@ qc_spatial_consistency <- function(spatial_point,
   rownames(spatial_point_cc@data) <- NULL
   
   # distance between point (only data less than 50km ~ 0.5)
-  dist_matrix <- rgeos::gDistance(spatial_point_cc, byid = TRUE)
-  dist_matrix[dist_matrix > neighborhood] <- NA
+  dist_matrix <- suppressWarnings(rgeos::gDistance(spatial_point_cc, byid = TRUE))
+  dist_matrix[dist_matrix > 0.5] <- NA
   
   
   # 1st comparison
@@ -53,7 +52,7 @@ qc_spatial_consistency <- function(spatial_point,
                           to_validate <- spatial_point_cc[x,]
                           gsO <- gstat::gstat(formula = OBS ~ 1, locations = spatial_point_cc[-x, ])
                           
-                          idw <- raster::interpolate(rgrid, gsO)
+                          idw <- raster::interpolate(rgrid, gsO, debug.level = 0)
                           round(raster::extract(idw, to_validate), 1)
                           
                         })
@@ -77,7 +76,7 @@ qc_spatial_consistency <- function(spatial_point,
                                gsO <- gstat::gstat(formula = OBS ~ 1,
                                                    locations = spatial_point_cc[-c(x, z), ])
                                
-                               idw <- raster::interpolate(rgrid, gsO)
+                               idw <- raster::interpolate(rgrid, gsO, debug.level = 0)
                                round(raster::extract(idw, to_validate), 1)
                                
                              })

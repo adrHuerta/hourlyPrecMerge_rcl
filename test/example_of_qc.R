@@ -45,6 +45,9 @@ example_obj %>% #need to change coordinates here with file Pisco
 # QC dataplot
 spplot(example_obj_qc[, "OBS"])
 
+# save them as .rds as a list(qc=example_obj_qc,no_qc = example_obj),
+# I know is the same, but load and save are not recommendable
 save(example_obj,example_obj_qc, file="./data/output/example_qc.RData")
+
 ## 
 # non-QC dataplot y QC dataplot should be shown in the report as example of qc
