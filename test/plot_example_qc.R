@@ -9,7 +9,7 @@ example$QC=example_obj_qc$OBS
 
 #2018-02-15 16:00:00"
 png("./data/output/plots/plot_example_qc.png",width=900,height=700, res = 150)
-spplot(example, col.regions=rainbow(5),c("OBS", "QC"),
+sp::spplot(example, col.regions=rainbow(5),c("OBS", "QC"),
        key.space = "right", 
        sp.layout=list(area_study), 
        scales = list(draw = TRUE),
