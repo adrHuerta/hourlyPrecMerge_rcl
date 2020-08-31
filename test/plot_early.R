@@ -1,3 +1,4 @@
+#plot early an event
 require(raster)
 
 # foldersat="./data/raw/early/2017/02"
