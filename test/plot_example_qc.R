@@ -1,4 +1,4 @@
-
+#plot example of qc 
 data_obs <- readRDS("./data/output/example_qc.rds")
 basins <- raster::shapefile("./data/shapes/CHIRILU.shp")
 
