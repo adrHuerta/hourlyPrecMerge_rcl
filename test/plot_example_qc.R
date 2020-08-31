@@ -8,7 +8,7 @@ example <- data_obs$no_qc
 example$QC=data_obs$qc$OBS
 
 #2018-02-15 16:00:00"
-png("./data/output/plots/plot_example_qc.png",width=900,height=800, res = 150)
+png("./data/output/plots/plot_example_qc.png",width=900,height=650, res = 150)
        sp::spplot(example, col.regions=rainbow(5),c("OBS", "QC"),
        sp.layout=list(area_study), 
        scales = list(draw = TRUE),
