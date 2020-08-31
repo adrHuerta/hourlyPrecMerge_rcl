@@ -40,3 +40,6 @@ for(i in 1:dim(obs_data$value)[1]){
     print(i)
   }
 }
+
+
+saveRDS(obs_data_qc, file = "./data/processed/obs/obs_data_qc.rds")
