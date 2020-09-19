@@ -26,7 +26,7 @@ for(i in 1:dim(obs_data$value)[1]){
   xyz$DATE <- as.character(time(step_time))
   xyz$OBS <- as.numeric(step_time)
   
-  if(all(is.na(step_time)) | (sum(!is.na(step_time)) < 10)){
+  if(all(is.na(step_time)) | (sum(!is.na(step_time)) < 3)){
     
     next
     
@@ -42,4 +42,4 @@ for(i in 1:dim(obs_data$value)[1]){
 }
 
 
-saveRDS(obs_data_qc, file = "./data/processed/obs/obs_data_qc.rds")
+saveRDS(obs_data_qc, file = "./data/processed/obs/obs_data_qc_v2.rds")
