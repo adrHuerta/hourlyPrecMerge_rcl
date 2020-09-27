@@ -16,7 +16,7 @@ statistical <- function(obs,sat,n){
     colnames(merge_xt)<-c("obs","sat")
     
     merge_xt[is.na(merge_xt)]=0
-    corr <- cor(merge_xt,method ="spearman")
+    corr <- cor(merge_xt,method ="pearson")
     corr <- corr[2,1]
     bias <- pbias(y, x)
     rmsE <- rmse(y,x)
