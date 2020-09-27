@@ -47,4 +47,7 @@ data.obs= data_obs$value[,-c(34,16,36,27)] #IDS remove
 estd.e <- statistical(data_sat,data.obs,ncol(data.obs))
 mean_e <- round(apply(estd.e,2,mean,na.rm=TRUE),2)
 names(mean_e) <- c("CC","RMSE","ME","MAE","Bias","POD","FAR","CSI")
-mean_e
+colnames(estd.e) <- names(mean_e)
+
+#save
+saveRDS(estd.e, file="./data/output/early_std.rds")
