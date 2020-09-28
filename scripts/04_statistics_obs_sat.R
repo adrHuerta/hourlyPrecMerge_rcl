@@ -3,7 +3,7 @@ require(hydroGOF)
 
 source('./src/pod_far_csi.R')
 data_sat <-readRDS("./data/processed/sat/sat_data.rds")
-data_obs <-readRDS("./data/processed/obs/obs_data_qc_v2.rds")
+data_obs <-readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 
 estd <- data.frame()
 
@@ -41,7 +41,7 @@ statistical <- function(obs,sat,n){
 }
 
 #data obs
-data.obs= data_obs$value[,-c(34,16,36,27)] #IDS remove
+data.obs= data_obs$value 
 
 #summary 
 estd.e <- statistical(data_sat,data.obs,ncol(data.obs))
