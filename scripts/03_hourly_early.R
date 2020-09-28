@@ -1,7 +1,7 @@
 library(raster)
 library(dplyr)
 
-obs_data <- readRDS("./data/processed/obs/obs_data_qc_v2.rds")
+obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 path  <- getwd()
 setwd("./data/raw/early/")
 folder_sat <- c("early_cut") # file early CHIRILU
@@ -37,4 +37,4 @@ sat_data <- xts::xts(ts_early, order.by = index(obs_data$value))
 
 #save
 setwd(path)
-saveRDS(object=sat_data, file = "./data/processed/sat/sat_data.rds")
+saveRDS(object=c(sat_data,early_hr), file = "./data/processed/sat/sat_data.rds")
