@@ -1,4 +1,8 @@
+rm(list = ls())
+"%>%" = magrittr::`%>%`
+
 # selection of stations observed
+# detalla mejor, define la connotación paquete::funcion, que no se entiende muy bien 
 
 #obs_data$value
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v2.rds")
@@ -22,6 +26,6 @@ df_xyz <- data.frame(obs_data$xyz)
 df_xyz<- dplyr::filter(df_xyz, CODE %in% colnames(obs_data$value))
 
 obs_data$xyz <- sp::SpatialPointsDataFrame(coords=df_xyz[,3:4],
-                data=df_xyz, proj4string=CRS(" +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") )
+                data=df_xyz, proj4string=sp::CRS(" +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") )
 
 saveRDS(obs_data, file = "./data/processed/obs/obs_data_qc_v3.rds")

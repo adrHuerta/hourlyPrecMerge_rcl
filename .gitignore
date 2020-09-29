@@ -40,6 +40,7 @@ vignettes/*.pdf
 
 # To heavy files
 /data/raw/early
+/data/processed/early
 /data/raw/obs/DR_Lima_QC1.csv
 /papers
 
