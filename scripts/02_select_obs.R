@@ -2,7 +2,6 @@ rm(list = ls())
 "%>%" = magrittr::`%>%`
 
 # selection of stations observed
-# detalla mejor, define la connotación paquete::funcion, que no se entiende muy bien 
 
 #obs_data$value
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v2.rds")
@@ -19,7 +18,12 @@ obs_data_select <- dplyr::select(obs_data_select,-ID4726B574)
 
 # remove by QC
 obs_data_select  <- dplyr::select(obs_data_select,-ID472A0766,-ID47E33064)
-obs_data$value <- xts::xts(obs_data_select,order.by = index(obs_data$value))
+
+
+#select days 
+Time  <- seq(as.POSIXct("2014-01-01 01:00"), as.POSIXct("2020-01-01 00:00"), by='hour')
+ntime <- length(Time)
+obs_data$value <- xts::xts(obs_data_select[1:ntime,],order.by =Time)
 
 #obs_data$xyz
 df_xyz <- data.frame(obs_data$xyz)
