@@ -36,6 +36,6 @@ Time  <- zoo::index(obs_data$value)
 sat_data <- xts::xts(sat_data, order.by = Time)
 
 #save
-saveRDS(object=list(sat_data = sat_data, 
+saveRDS(object=list(value = sat_data, 
                     early_hr = early_hr), 
         file = "./data/processed/sat/sat_data.rds")
