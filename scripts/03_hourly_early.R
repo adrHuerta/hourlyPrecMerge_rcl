@@ -26,25 +26,16 @@ obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 #                     filename = "./data/processed/early/early_chirilu.nc")
 
 # time since: 2014-01-01 05:00
-sat_data <- raster::brick("./data/processed/early/early_chirilu.nc")
-raster::projection(sat_data) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+early_hr <- raster::brick("./data/processed/early/early_chirilu.nc")
+raster::projection(early_hr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
-# early time series
-obs_data$xyz <- as.data.frame(obs_data$xyz)
-# IDS removed ID472A0766, ID472542FE, ID4726B574, ID47E33064
-# no se supone que esto ya se elimino en 02_select_obs? 
-# eliminar todo en 02_select_obs, para ya no hacer esto
-obs_data$xyz <- sp::SpatialPointsDataFrame(coords = obs_data$xyz[,3:4],
-                                           data = obs_data$xyz[-c(34,16,36,27),],
-                                           proj4string = sp::CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-
-
-ts_early<- t(extract(early_hr,obs_data$xyz))
-colnames(ts_early) <- obs_data$xyz$CODE
-sat_data <- xts::xts(ts_early, order.by = index(obs_data$value))
+#early time series
+sat_data <- t(raster::extract(early_hr,obs_data$xyz))
+colnames(sat_data) <- colnames(obs_data$value)
+Time  <- zoo::index(obs_data$value)
+sat_data <- xts::xts(sat_data, order.by = Time)
 
 #save
-# setwd(path) no se debe hacer esto!
 saveRDS(object=list(sat_data = sat_data, 
                     early_hr = early_hr), 
         file = "./data/processed/sat/sat_data.rds")
