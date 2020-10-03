@@ -6,7 +6,7 @@ POD_FAR_CSI= function(SAT, OBS)
   colnames(res) = c("sat", "obs")
   
   res <- transform(res, GD.RAIN = ifelse(sat > 0.1, 1, 0),
-                                  OBS.RAIN = ifelse(obs > 0.1, 1, 0))
+                                  OBS.RAIN = ifelse(obs  > 0.1 ,1, 0))
   
   res <- transform(res, HIT = ifelse(OBS.RAIN == 1 & GD.RAIN == 1, 1, 0), 
                         MISS = ifelse(OBS.RAIN == 1 & GD.RAIN == 0, 1, 0), 
@@ -19,3 +19,4 @@ POD_FAR_CSI= function(SAT, OBS)
   return(data.frame(POD = round(POD, 2), FAR = round(FAR, 2),CSI = round(CSI, 2)))
   
   }
+
