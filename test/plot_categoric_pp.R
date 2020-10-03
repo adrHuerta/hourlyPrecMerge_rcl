@@ -1,10 +1,10 @@
+rm(list = ls())
+
 library(dplyr)
 library(lattice)
 
-
-
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v4.rds")
-data_sat <-readRDS("./data/processed/sat/sat_data2.rds")
+data_sat <-readRDS("./data/processed/sat/sat_data.rds")
 
 obs=obs_data$value
 sat=data_sat$value
@@ -13,7 +13,7 @@ ts=merge(obs,sat,join='left')
 ts=data.frame(ts)
 
 
-box_pp_categoric <-  function( ts, valor1, valor2, label)
+box_pp_categoric <-  function( ts, valor1, label)
   {
     source('./src/pod_far_csi.R')
     gauge=colnames(ts)
@@ -21,7 +21,7 @@ box_pp_categoric <-  function( ts, valor1, valor2, label)
     
     for(i in 1:37){ 
       est <-  ts %>% 
-        filter((  valor1 <=ts[,i] & ts[,i] < valor2 )|(valor1 <=ts[,i+37] & ts[,i+37] < valor2) ) %>%
+        #filter((  valor1 <= ts[,i] ) | (valor1 <=ts[,i+37]) ) %>%
         dplyr::select(contains(gauge[i]))
       
       
@@ -29,7 +29,8 @@ box_pp_categoric <-  function( ts, valor1, valor2, label)
         corr[[i]] =NA
       } else {
         corr[[i]] <- POD_FAR_CSI(SAT = est[,2],
-                                 OBS = est[,1])
+                                 OBS = est[,1],
+                                 tresh = valor1)
       }
     } 
     corr=Filter(function(a) any(!is.na(a)), corr)
@@ -42,16 +43,16 @@ box_pp_categoric <-  function( ts, valor1, valor2, label)
     return(df)
   }
  
-#catg1=box_pp_categoric(ts,valor1=0,valor2 = 0.1,"0 - .1")
-catg2=box_pp_categoric(ts,valor1=0.1,valor2 = 0.25,".1 - .25")
-catg3=box_pp_categoric(ts,valor1=0.25,valor2 = 0.5,".25 - .5")
-catg4=box_pp_categoric(ts,valor1=0.5,valor2 = 1.0,".5 - 1")
-catg5=box_pp_categoric(ts,valor1=1.0,valor2 = 5.0,"1 - 5")
+catg1=box_pp_categoric(ts,valor1=0.1,"0 - .1")
+catg2=box_pp_categoric(ts,valor1=0.2,".1 - .25")
+catg3=box_pp_categoric(ts,valor1=0.5,".25 - .5")
+catg4=box_pp_categoric(ts,valor1=0.7,".5 - 1")
+catg5=box_pp_categoric(ts,valor1=1,"1 - 5")
 #catg6=box_pp_categoric(ts,valor1=2.0,valor2 = 5.0,"2-5")
-catg6=box_pp_categoric(ts,valor1=5.0,valor2 = 18.9,"<5")
+catg6=box_pp_categoric(ts,valor1=1.5,"<5")
 #colMax <- function(ts) sapply(ts, max, na.rm = TRUE)
 
-tabla_box=dplyr::bind_rows(catg2,catg3,catg4,catg5,catg6)
+tabla_box=dplyr::bind_rows(catg1, catg2, catg3, catg4, catg5, catg6)
 
 
 # my.panel <- function(..., box.ratio) {
