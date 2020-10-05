@@ -7,12 +7,12 @@ data_obs <-readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 
 # type of validation
 metrics_spatial <- calculate_metrics(obs=data_obs$value,
-                             sat=data_sat$value,
-                             type_of_validation="spatial")
+                                     sat=data_sat$value,
+                                     type_of_validation="spatial")
 
-metrics_temporal <- calculate_metrics(obs=data_obs$value,
-                             sat=data_sat$value,
-                             type_of_validation="temporal")
+metrics_temporal<- calculate_metrics(obs=data_obs$value,
+                                     sat=data_sat$value,
+                                     type_of_validation="temporal")
  
 
 #save
