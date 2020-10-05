@@ -1,73 +1,69 @@
 rm(list = ls())
 
-library(dplyr)
-library(lattice)
+# library(dplyr)
+#library(lattice)
+require(xts)
 
-obs_data <- readRDS("./data/processed/obs/obs_data_qc_v4.rds")
-data_sat <-readRDS("./data/processed/sat/sat_data.rds")
+obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
+data_sat <- readRDS("./data/processed/sat/sat_data.rds")
 
-obs=obs_data$value
-sat=data_sat$value
+obs <- obs_data$value
+sat <- data_sat$value
 
-ts=merge(obs,sat,join='left') 
-ts=data.frame(ts)
+#join ts obs sat 
+ts_merge <- merge(obs,sat,join='left') 
+ts_merge <- data.frame(ts_merge)
 
-
-box_pp_categoric <-  function( ts, valor1, label)
+#calculate categoric pp 
+box_pp_categoric <-  function( ts_merge, value1, label)
   {
     source('./src/pod_far_csi.R')
-    gauge=colnames(ts)
-    corr = list()
     
-    for(i in 1:37){ 
-      est <-  ts %>% 
-        #filter((  valor1 <= ts[,i] ) | (valor1 <=ts[,i+37]) ) %>%
-        dplyr::select(contains(gauge[i]))
+    gauge_label <- colnames(ts_merge)
+    metrics <- list()
+    
+    for(i in 1:(ncol(ts_merge)/2)){ 
+      ts_merge1 <- ts_merge %>% 
+                   dplyr::select(contains(gauge_label[i]))
       
-      
-      if(nrow(est)== 0){
-        corr[[i]] =NA
+      if(nrow(ts_merge1)== 0){
+        metrics[[i]] =NA
       } else {
-        corr[[i]] <- POD_FAR_CSI(SAT = est[,2],
-                                 OBS = est[,1],
-                                 tresh = valor1)
+        metrics[[i]] <- POD_FAR_CSI(SAT = ts_merge1[,2],
+                                    OBS = ts_merge1[,1],
+                                    tresh = value1)
       }
     } 
-    corr=Filter(function(a) any(!is.na(a)), corr)
-    df_estd=dplyr::bind_rows(corr) %>%
-             rapply(c) 
-    
-    type=rep(c("POD","FAR","CSI"),rep(length(corr),3))
-    category=rep(label,length(df_estd))
-    df=data.frame(df_estd,type,category)
-    return(df)
+    metrics <-Filter(function(a) any(!is.na(a)), metrics)
+    df_metrics <- dplyr::bind_rows(metrics) %>%
+                  rapply(c) 
+    type <- rep(c("POD","FAR","CSI"),rep(length(metrics),3))
+    category <- rep(label,length(df_metrics))
+    df_final <- data.frame(df_metrics,type,category)
+    return(df_final)
   }
- 
-catg1=box_pp_categoric(ts,valor1=0.1,"0 - .1")
-catg2=box_pp_categoric(ts,valor1=0.2,".1 - .25")
-catg3=box_pp_categoric(ts,valor1=0.5,".25 - .5")
-catg4=box_pp_categoric(ts,valor1=0.7,".5 - 1")
-catg5=box_pp_categoric(ts,valor1=1,"1 - 5")
-#catg6=box_pp_categoric(ts,valor1=2.0,valor2 = 5.0,"2-5")
-catg6=box_pp_categoric(ts,valor1=1.5,"<5")
-#colMax <- function(ts) sapply(ts, max, na.rm = TRUE)
+
+# 5 categoric 
+catg1 <- box_pp_categoric(ts_merge,value1=0.1,label="0.1")
+catg2 <- box_pp_categoric(ts_merge,value1=0.2,label="0.2")
+catg3 <- box_pp_categoric(ts_merge,value1=0.5,label="0.5")
+catg4 <- box_pp_categoric(ts_merge,value1=0.7,label="0.7")
+catg5 <- box_pp_categoric(ts_merge,value1=1.0,label="1.0")
+catg6 <- box_pp_categoric(ts_merge,value1=1.5,label="1.5")
+
 
 tabla_box=dplyr::bind_rows(catg1, catg2, catg3, catg4, catg5, catg6)
 
 
-# my.panel <- function(..., box.ratio) {
-#   panel.stripplot(..., col=c("blue"), alpha=0.2,
-#                   jitter.data = TRUE, pch = 19, cex=0.5)
-# } range(bp$stats)
-#png("./data/output/plots/plot_categoric_pp2.png",width=850,height=500, res = 110)
+png("./data/output/plots/plot_categoric_pp2.png",width=850,height=500, res = 110)
+
 trellis.device(new=FALSE, col=FALSE)
-bwplot(df_estd ~ factor(category) | type, data = tabla_box, 
-       layout = c(3,1), ylab=c("Valor del índice"),xlab=c("Categoria de Precipitación (mm/hr)"),
-       # panel = my.panel,
-       prepanel = function(x, y) {
-         bp <- boxplot(split(y, x), plot = FALSE)
-         ylim <- c(0:1)
-         list(ylim = ylim) },
-       scales = list(y = list(relation = "free"),x=list(rot=45)),
-       do.out = T)     
-#dev.off()
+lattice::bwplot(df_metrics ~ factor(category) | type, data = tabla_box, layout = c(3,1),
+                ylab=c("Valor del índice"),xlab=c("Categoria de Precipitación (mm/hr)"),
+                prepanel = function(x, y) {
+                           bp <- boxplot(split(y, x), plot = FALSE)
+                           list(ylim = c(0:1)) },
+                scales = list(y = list(relation = "free"),
+                              x = list(rot=45)),
+                do.out = T)     
+dev.off()
