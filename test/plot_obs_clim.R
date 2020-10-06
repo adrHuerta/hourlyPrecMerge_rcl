@@ -1,106 +1,116 @@
-library(xts)
+
+rm(list = ls())
 library(dplyr)
+library(xts)
+"%>%" = magrittr::`%>%`
 
-obs_data <- readRDS("./data/raw/obs/obs_data.rds")
+####PLOT STATIONS IN CHIRILU
+obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
+sat_data <- readRDS("./data/processed/sat/sat_data.rds")
 
-#estaciones
+#shp
+r <- raster::raster("./data/shapes/chirilu_ProjectRaster.tif")
 border <- raster::shapefile("./data/shapes/DEPARTAMENTOS.shp")
 basins <- raster::shapefile("./data/shapes/CHIRILU.shp")
-r <- raster::raster("./data/shapes/chirilu_ProjectRaster.tif")
 
-plot.a=spplot(r,col.regions =grey.colors(20), colorkey=FALSE, margin=F, xlab="Longitud(°)",ylab="Latitud(°)",
-       sp.layout=list(list(border)),  main=list(label="(a)",cex=0.9),
-       scales = list(y = list(tck=c(-1, -1)),x = list(tck=c(-1, -1))),
-       xlim=c(-77.4,-76.0),ylim=c(-12.32,-11.0))+ 
-       latticeExtra::layer(sp.points(obs_data$xyz,pch =19,lwd=3,col="blue"))+ 
-       latticeExtra::layer(sp.polygons(basins)) 
 
-#gráfico climático
-path_raster="./data/shapes/pisco/"
-ras=list.files(path=path_raster,pattern=".tif")
-obs_data=readRDS('./data/processed/obs/obs_data_qc_v2.rds')
-Pisco.prec.brick=stack(paste0(path_raster,ras))
+plot.a <- sp::spplot(r,col.regions =grey.colors(20), colorkey=FALSE,
+                     margin=F, xlab="Longitud(°)",ylab="Latitud(°)",
+                     main=list(label="(a)",cex=0.9),
+                     sp.layout=list(list(border)),  
+                     scales = list(y = list(tck=c(-1, -1)),
+                                   x = list(tck=c(-1, -1))),
+                     xlim=c(-77.45,-75.86),ylim=c(-12.3,-10.95))+ 
+                     latticeExtra::layer(sp::sp.points(obs_data$xyz,
+                                         pch =19,lwd=3,col="blue"))+ 
+                     latticeExtra::layer(sp::sp.polygons(basins)) 
 
-order.alt.xyz =as.data.frame(obs_data$xyz) %>%
-              arrange(ALT) 
-obs_data$xyz = SpatialPointsDataFrame(coords=order.alt.xyz[,3:4],
-               data=order.alt.xyz, proj4string=CRS(" +proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0") )         
+####PLOT PISCO CLIMATOLOGY
+ras <- list.files(path="./data/shapes/pisco/",pattern=".tif")
+Pisco.prec.brick <- raster::stack(paste0("./data/shapes/pisco/",ras))
 
+#select data in ALT
+order.alt.xyz <- as.data.frame(obs_data$xyz) %>%
+                 arrange(ALT)
+
+obs_data$xyz <- sp::SpatialPointsDataFrame(coords=order.alt.xyz[,3:4],
+                                      data=order.alt.xyz, 
+                                      proj4string=sp::CRS(" +proj=longlat +datum=WGS84 
+                                                      +no_defs +ellps=WGS84 +towgs84=0,0,0"))         
+#extract point
 point <- obs_data$xyz[,c("CODE","LAT","LON")]
-df1 <- extract(Pisco.prec.brick, point, df=TRUE, method='simple')
 
-df1 <- data.frame(t(df1[,c(-1)]))
+pisco_extract <- raster::extract(Pisco.prec.brick, point, df=TRUE, method='simple')
+pisco_extract <- data.frame(t(pisco_extract[,c(-1)]))
+
+#labels months as factor
 noms <- obs_data$xyz$ESTACION
-colnames(df1) <- noms
-df1$factor=rep(1:12)
+colnames(pisco_extract) <- noms
+pisco_extract$factor <- rep(1:12)
+pisco_extract <- reshape::melt(pisco_extract, id.vars=c('factor'),var='est')
 
-df1=reshape::melt(df1, id.vars=c('factor'),var='est')
+
+month_label <- format(seq(as.Date("2020-01-01"),as.Date("2020-12-01"),
+                          by = "1 month"), format = "%b")
+
+#ramps color
+my.par.setting <- list(superpose.symbol = list(col = colorRamps::magenta2green(46),pch =19), 
+                       superpose.line = list(col = colorRamps::magenta2green(46),lwd=1))
+
+plot.b <- lattice::xyplot(value~ factor,data=pisco_extract,
+                          groups = est,superpose = TRUE,auto.key = FALSE,
+                          type =c("b"),par.settings = my.par.setting, 
+                          main =list(label="(b)",cex=0.9),   
+                          xlim =c(1,12),xlab=c("meses"),ylab =c("Precipitación(mm/mes)"),
+                          scales = list(y = list(tck=c(-1, -1)),
+                                        x = list(at=seq(1,12,1), 
+                                        labels=month_label,
+                                        rot=45,tck=c(-1, -1))))
 
 
-month <- seq(as.Date("2020-01-01"),as.Date("2020-12-01"),by = "1 month")
-month_label <- format(month, format = "%b")
 
-my.par.setting=list(superpose.symbol = list(col = magenta2green(46),pch = 19), 
-     superpose.line = list(col =magenta2green(46),lwd=1))
+####PLOT DATA EARLY
+sat_data$value$factor <- rep(1:24,756)
+data_early <- data.frame(sat_data$value)
 
-plot.b=xyplot(value~ factor,data=df1,groups = est, superpose = TRUE,auto.key = FALSE,type = c("b"),  
-              par.settings = my.par.setting,    
-              xlim =c(1,12),xlab=c("meses"),ylab =c("Precipitación(mm/mes)"), main=list(label="(b)",cex=0.9),
-       scales = list(y = list(tck=c(-1, -1)),x = list(at=seq(1,12,1), labels=month_label,rot=45,tck=c(-1, -1))))
+data_early[data_early < 0] <- NA
+early_group <- data_early %>% 
+               group_by(factor) %>%
+               summarise_each(funs(mean(.,na.rm=TRUE))) 
 
-#plot hourly
-obs_data$value=select(data.frame(coredata(obs_data$value)), obs_data$xyz$CODE)
-data=obs_data$value[1:52584,-c(33,25,3,32)]
-hora=seq(from=as.POSIXct("2014-01-01 01:00:00"),to=as.POSIXct("2020-01-01 00:00:00"), by="hour")
-datafinal=xts::xts(data,order.by=hora)
+early_group <- reshape::melt(as.data.frame(early_group), 
+                             id.vars=c('factor'),var='est')
 
-datafinal$factor=rep(1:24,2191)
-datados=as.data.frame(coredata(datafinal))
+labels <- c("01:00","06:00","12:00","18:00","00:00")
 
-promediar= datados %>% group_by(factor) %>%
-  summarise_each(funs(mean(.,na.rm=TRUE))) 
+plot.c <- lattice::xyplot(value~ factor,data=early_group,groups = est, 
+                          superpose = TRUE,auto.key = FALSE,type = "b",
+                          pch=19,xlim =c(1,24),par.settings = my.par.setting,
+                          xlab=c("Horas"),ylab =c("Precipitación(mm/hr)"), 
+                          main=list(label="(c)",cex=0.9),
+                          scales = list(y = list(tck=c(-1, -1)),
+                                        x = list(at=c(1,6,12,18,24), 
+                                        labels=labels, tck=c(-1, -1))))
+####PLOT DATA HOURLY
+obs_data$value$factor <- rep(1:24,756)
+data_obs <- as.data.frame(obs_data$value)
 
-df2=reshape::melt(as.data.frame(promediar), id.vars=c('factor'),var='est')
+obs_group <- data_obs %>% 
+             group_by(factor) %>%
+             summarise_each(funs(mean(.,na.rm=TRUE))) 
 
-labels=c("01:00","06:00","12:00","18:00","00:00")
-plot.c=xyplot(value~ factor,data=df2,groups = est, superpose = TRUE,auto.key = FALSE,type = "b",pch=19,xlim =c(1,24),par.settings = my.par.setting,
-       xlab=c("Horas"),ylab =c("Precipitación(mm/hr)"), main=list(label="(d)",cex=0.9),
-       scales = list(y = list(tck=c(-1, -1)),x = list(at=c(1,6,12,18,24), labels=labels, tck=c(-1, -1))))
-#plot boxplot
+obs_group <- reshape::melt(as.data.frame(obs_group), 
+                           id.vars=c('factor'),var='est')
 
-pp_humedo=df1 %>%
-  arrange(factor)  %>%
-  filter(factor<4 | factor>10)   
-
-pp_humedo$tipo=rep("P.Húmedo",230)
-
-pp_seco=df1 %>%
-  arrange(factor)  %>%
-  filter(factor<11 & factor>3)   
-
-pp_seco$tipo=rep("P.Seco",322)
-pp_montly=rbind(pp_seco,pp_humedo)
-
-my.panel <- function(..., box.ratio) {
-  panel.violin(..., col=c("gray"),border = FALSE,alpha = 0.8,
-               varwidth = FALSE, box.ratio = box.ratio)
-  panel.bwplot(..., col="red",
-               cex=0.9, pch='|', 
-               fill=c("mediumspringgreen","tomato1"), box.ratio = .25)
-  panel.stripplot(..., col=c("blue"), alpha=0.5,
-                  jitter.data = TRUE, pch = 19, cex=0.5)
-}
-# Violin plot
-
-plot.d=bwplot(value ~ tipo,  data = pp_montly, ylab=c("Precipitación(mm/mes)"),
-             panel=my.panel, main=list(label="(c)",cex=0.9),
-              par.settings = list(box.rectangle=list(col='black'),
-                                  plot.symbol = list(pch='.', cex = 0.1)),
-             scales=list(x=list( cex=0.9)))
-
-#width=900,height=650 , res = 150
-png("./data/output/plots/plot_obs_clim.png")
-
+plot.d <- lattice::xyplot(value~ factor,data=obs_group,groups = est, 
+                          superpose = TRUE,auto.key = FALSE,type = "b",
+                          pch=19,xlim =c(1,24),par.settings = my.par.setting,
+                          xlab=c("Horas"),ylab =c("Precipitación(mm/hr)"), 
+                          main=list(label="(d)",cex=0.9),
+                          scales = list(y = list(tck=c(-1, -1)),
+                                        x = list(at=c(1,6,12,18,24), 
+                                                 labels=labels, tck=c(-1, -1))))
+#plot
+png("./data/output/plots/plot_obs_clim.png",width=900,height=850, res = 100)
 gridExtra::grid.arrange(plot.a,plot.b,plot.d,plot.c,ncol=2,nrow=2)
-
 dev.off()
