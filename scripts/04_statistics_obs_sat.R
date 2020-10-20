@@ -14,7 +14,7 @@ metrics_temporal<- calculate_metrics(obs=data_obs$value,
                                      sat=data_sat$value,
                                      type_of_validation="temporal")
  
-
+rownames(metrics_spatial) <- index(data_obs$value)
 #save
 saveRDS(object=list(spatial = metrics_spatial, 
                     temporal = metrics_temporal), 
