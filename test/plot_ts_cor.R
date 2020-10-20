@@ -1,36 +1,25 @@
+rm(list = ls())
+
 #plot temporal Coeficient Correlations
 metrics=readRDS("./data/output/metrics.rds")
 metrics=metrics$spatial
 
 #read time series
-Time  <- seq(as.POSIXct("2014-01-01 01:00"), as.POSIXct("2020-01-01 00:00"), by='hour')
-ntime <- length(Time)
+Time  <- row.names(metrics)
+Time <- as.POSIXct(Time)
 ts_cor <- xts::xts(metrics$corr,order.by =Time)
 
-#select time series
-xts1=list()
-for (i in 1:5) {
-  years= as.character(2014:2019)
-  xts1[[i]] <- ts_cor[paste0(years[i],"-11/",years[i+1],"-03")]
-  
- }
+n_hours1=length(ts_cor["2014-11/2015-03"])
+n_hours2=length(ts_cor["2015-11/2016-03"])
 
-#modify year 2016, period 2015-2016
-ExcludeDates <- function(x, exclude) {
-  idx <- index(x)
-  x[idx[!format(idx, "%Y-%m-%d") %in% paste(exclude)]]
-}
-xts1[[2]]<-ExcludeDates(xts1[[2]],"2016-02-29")
-
-# length hours
-n_hours=length(xts1[[2]])
 
 # joins df
-ts_cor=data.frame(cor=unlist(xts1))
-ts_cor$index = rep (1:n_hours,5)
+ts_cor=data.frame(zoo::coredata(ts_cor))
+ts_cor$index = c(1:n_hours1,1:n_hours2,rep (1:n_hours1,3))
 labels=c("2014-2015","2015-2016",
          "2016-2017","2017-2018","2018-2019")
-ts_cor$period = rep(labels,each=n_hours)
+ts_cor$period<-rep(labels,c(n_hours1,n_hours2,rep(n_hours1,3))) 
+colnames(ts_cor)<-c("cor","index","period")
 
 # remove cor<0
 ts_cor[ts_cor< 0] <- NA
@@ -42,8 +31,8 @@ lattice::xyplot(cor ~ index| period, ts_cor, layout=c(1,5),
                 ylab =c("Coeficiente de Correlación"),xlab=c("Horas"),
                 grid = TRUE, group = period,type = c("l"),
                 par.settings = list(strip.background=list(col="gray")),
-                scales = list(x = list(at=seq(1,n_hours,720),
-                labels=c("Nov","Dic","Ene","feb","Mar","Abr"))))
+                scales = list(x = list(at=seq(1,n_hours2,720),
+                                       labels=c("Nov","Dic","Ene","feb","Mar","Abr"))))
 
 dev.off()
 
