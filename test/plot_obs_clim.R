@@ -1,7 +1,7 @@
 
 rm(list = ls())
-library(dplyr)
-library(xts)
+
+require(xts)
 "%>%" = magrittr::`%>%`
 
 ####PLOT STATIONS IN CHIRILU
@@ -26,16 +26,15 @@ plot.a <- sp::spplot(r,col.regions =grey.colors(20), colorkey=FALSE,
                      latticeExtra::layer(sp::sp.polygons(basins)) 
 
 ####PLOT PISCO CLIMATOLOGY
-ras <- list.files(path="./data/shapes/pisco/",pattern=".tif")
-Pisco.prec.brick <- raster::stack(paste0("./data/shapes/pisco/",ras))
+monthly.pisco <- list.files(path="./data/shapes/pisco/",pattern=".tif")
+Pisco.prec.brick <- raster::stack(paste0("./data/shapes/pisco/",monthly.pisco))
 
 #select data in ALT
 order.alt.xyz <- as.data.frame(obs_data$xyz) %>%
-                 arrange(ALT)
+                              dplyr::arrange(ALT)
 
-obs_data$xyz <- sp::SpatialPointsDataFrame(coords=order.alt.xyz[,3:4],
-                                      data=order.alt.xyz, 
-                                      proj4string=sp::CRS(" +proj=longlat +datum=WGS84 
+obs_data$xyz <- sp::SpatialPointsDataFrame(coords=order.alt.xyz[,3:4],data=order.alt.xyz, 
+                                           proj4string=sp::CRS(" +proj=longlat +datum=WGS84 
                                                       +no_defs +ellps=WGS84 +towgs84=0,0,0"))         
 #extract point
 point <- obs_data$xyz[,c("CODE","LAT","LON")]
@@ -48,7 +47,6 @@ noms <- obs_data$xyz$ESTACION
 colnames(pisco_extract) <- noms
 pisco_extract$factor <- rep(1:12)
 pisco_extract <- reshape::melt(pisco_extract, id.vars=c('factor'),var='est')
-
 
 month_label <- format(seq(as.Date("2020-01-01"),as.Date("2020-12-01"),
                           by = "1 month"), format = "%b")
@@ -68,15 +66,17 @@ plot.b <- lattice::xyplot(value~ factor,data=pisco_extract,
                                         rot=45,tck=c(-1, -1))))
 
 
-
 ####PLOT DATA EARLY
-sat_data$value$factor <- rep(1:24,756)
+n_hour <- nrow(obs_data$value)/24
+sat_data$value$factor <- rep(1:24,n_hour)
 data_early <- data.frame(sat_data$value)
 
+# extract negative values
 data_early[data_early < 0] <- NA
+
 early_group <- data_early %>% 
-               group_by(factor) %>%
-               summarise_each(funs(mean(.,na.rm=TRUE))) 
+               dplyr::group_by(factor) %>%
+               dplyr::summarise_each(dplyr::funs(mean(.,na.rm=TRUE))) 
 
 early_group <- reshape::melt(as.data.frame(early_group), 
                              id.vars=c('factor'),var='est')
@@ -92,12 +92,12 @@ plot.c <- lattice::xyplot(value~ factor,data=early_group,groups = est,
                                         x = list(at=c(1,6,12,18,24), 
                                         labels=labels, tck=c(-1, -1))))
 ####PLOT DATA HOURLY
-obs_data$value$factor <- rep(1:24,756)
+obs_data$value$factor <- rep(1:24,n_hour)
 data_obs <- as.data.frame(obs_data$value)
 
 obs_group <- data_obs %>% 
-             group_by(factor) %>%
-             summarise_each(funs(mean(.,na.rm=TRUE))) 
+             dplyr::group_by(factor) %>%
+             dplyr::summarise_each(dplyr::funs(mean(.,na.rm=TRUE))) 
 
 obs_group <- reshape::melt(as.data.frame(obs_group), 
                            id.vars=c('factor'),var='est')
@@ -109,8 +109,12 @@ plot.d <- lattice::xyplot(value~ factor,data=obs_group,groups = est,
                           main=list(label="(d)",cex=0.9),
                           scales = list(y = list(tck=c(-1, -1)),
                                         x = list(at=c(1,6,12,18,24), 
-                                                 labels=labels, tck=c(-1, -1))))
+                                        labels=labels, tck=c(-1, -1))))
 #plot
 png("./data/output/plots/plot_obs_clim.png",width=900,height=850, res = 100)
-gridExtra::grid.arrange(plot.a,plot.b,plot.d,plot.c,ncol=2,nrow=2)
+
+gridExtra::grid.arrange(plot.a,plot.b,
+                        plot.d,plot.c,
+                        ncol=2,nrow=2)
+
 dev.off()
