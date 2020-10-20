@@ -1,8 +1,7 @@
 rm(list = ls())
 
-# library(dplyr)
-#library(lattice)
 require(xts)
+"%>%" = magrittr::`%>%`
 
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 data_sat <- readRDS("./data/processed/sat/sat_data.rds")
@@ -55,15 +54,14 @@ catg6 <- box_pp_categoric(ts_merge,value1=1.5,label="1.5")
 tabla_box=dplyr::bind_rows(catg1, catg2, catg3, catg4, catg5, catg6)
 
 
-png("./data/output/plots/plot_categoric_pp2.png",width=850,height=500, res = 110)
+png("./data/output/plots/plot_categoric_pp.png",width=850,height=500, res = 110)
 
-trellis.device(new=FALSE, col=FALSE)
+lattice::trellis.device(new=FALSE, col=FALSE)
 lattice::bwplot(df_metrics ~ factor(category) | type, data = tabla_box, layout = c(3,1),
                 ylab=c("Valor del índice"),xlab=c("Categoria de Precipitación (mm/hr)"),
                 prepanel = function(x, y) {
                            bp <- boxplot(split(y, x), plot = FALSE)
                            list(ylim = c(0:1)) },
                 scales = list(y = list(relation = "free"),
-                              x = list(rot=45)),
-                do.out = T)     
+                              x = list(rot=45)),do.out = T)     
 dev.off()
