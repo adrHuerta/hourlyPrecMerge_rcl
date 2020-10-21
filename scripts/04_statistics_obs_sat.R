@@ -1,6 +1,8 @@
 rm(list = ls())
+require(xts)
 
 source('./src/calculate_metrics.R')
+
 #read data
 data_sat <-readRDS("./data/processed/sat/sat_data.rds")
 data_obs <-readRDS("./data/processed/obs/obs_data_qc_v3.rds")
