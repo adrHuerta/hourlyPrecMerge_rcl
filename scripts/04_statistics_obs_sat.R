@@ -1,6 +1,7 @@
 rm(list = ls())
 require(xts)
 
+rm(list = ls())
 source('./src/calculate_metrics.R')
 
 #read data
