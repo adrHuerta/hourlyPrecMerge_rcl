@@ -45,7 +45,7 @@ regressionIDW_mode2[[i]] <- RIDW(gauge= gauge,
                                  norm = c("sqrt"))
 
 sat2 <- early_hr[[i-2]]
-regressionIDW_mode2[[i]] <- RIDW(gauge= gauge,
+regressionIDW_mode3[[i]] <- RIDW(gauge= gauge,
                                  cov = sat,
                                  cov2 = list(sat1,sat2),
                                  formula = pp_obs ~ pp_sat + sat_1 + sat_2,
