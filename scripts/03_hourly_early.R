@@ -36,18 +36,31 @@ colnames(sat_data) <- colnames(obs_data$value)
 Time  <- seq(as.POSIXct("2014-01-01 01:00"), as.POSIXct("2020-01-01 00:00"), by='hour')
 sat_data <- xts::xts(sat_data, order.by = Time)
 
-# extract period 11-03 2014-2019
+# extract ts period 11-03 2014-2019
+
 ts1 <- sat_data["2014-11/2015-03"]
 ts2 <- sat_data["2015-11/2016-03"]
 ts3 <- sat_data["2016-11/2017-03"]
 ts4 <- sat_data["2017-11/2018-03"]
 ts5 <- sat_data["2018-11/2019-03"]
  
-sat_data <- rbind(ts1,ts2,ts3,ts4,ts5)
+sat_data2 <- rbind(ts1,ts2,ts3,ts4,ts5)
  
+early_hr2 <- early_hr
+dates_labels <- as.character(zoo::index(sat_data2)) %>%
+                 stringr::str_replace_all(":" , ".") %>%
+                    stringr::str_replace_all("-" , ".") %>%
+                      stringr::str_replace_all(" " , ".")
+
+early_hr2<-early_hr2[[paste0("X",dates_labels)]]
+
 #save
 saveRDS(object=list(value = sat_data, 
                     early_hr = early_hr), 
         file = "./data/processed/sat/sat_data.rds")
+
+saveRDS(object=list(value = sat_data2, 
+                    early_hr = early_hr2), 
+        file = "./data/processed/sat/sat_data2.rds")
 
 
