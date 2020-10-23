@@ -4,7 +4,7 @@ require(xts)
 "%>%" = magrittr::`%>%`
 
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
-data_sat <- readRDS("./data/processed/sat/sat_data.rds")
+data_sat <- readRDS("./data/processed/sat/sat_data2.rds")
 
 obs <- obs_data$value
 sat <- data_sat$value
