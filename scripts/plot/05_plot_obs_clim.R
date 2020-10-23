@@ -5,7 +5,7 @@ require(xts)
 
 ####PLOT STATIONS IN CHIRILU
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
-sat_data <- readRDS("./data/processed/sat/sat_data.rds")
+sat_data <- readRDS("./data/processed/sat/sat_data2.rds")
 
 #shp
 r <- raster::raster("./data/shapes/chirilu_ProjectRaster.tif")
