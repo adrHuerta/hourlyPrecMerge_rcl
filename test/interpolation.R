@@ -68,7 +68,12 @@ RIDW_events <- function(events, obs_data, early_hr ) {
 
                  }
                  #return
-                 return(regressionIDW_mode1, regressionIDW_mode2, regressionIDW_mode3)
+                 ridw_mode1 <- raster::stack(regressionIDW_mode1[3:nrow(obs)])
+                 ridw_mode2 <- raster::stack(regressionIDW_mode1[3:nrow(obs)])
+                 ridw_mode3 <- raster::stack(regressionIDW_mode1[3:nrow(obs)])
+                 return(list(RIDW_mode1=ridw_mode1,
+                             RIDW_mode2=ridw_mode2,
+                             RIDW_mode3=ridw_mode3))
               }
 
 
