@@ -7,7 +7,7 @@ source("./src/Check_data.R")
 #                  data_ini = "2014-01-01 05:00",
 #                  data_end = "2020-01-01 04:30")
 
- # obs data
+# obs data
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 
 # list_raster <- list.files("./data/raw/early/early_cut", 
@@ -27,7 +27,7 @@ obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 #                     filename = "./data/processed/early/early_chirilu.nc")
 
 # time since: 2014-01-01 05:00
-early_hr <- raster::brick("./data/processed/early/early_chirilu.nc")
+early_hr <- raster::readAll(raster::brick("./data/processed/early/early_chirilu.nc")) # to be used as .rds file
 raster::projection(early_hr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
 
 #early time series complete 
@@ -43,14 +43,14 @@ ts2 <- sat_data["2015-11/2016-03"]
 ts3 <- sat_data["2016-11/2017-03"]
 ts4 <- sat_data["2017-11/2018-03"]
 ts5 <- sat_data["2018-11/2019-03"]
- 
+
 sat_data2 <- rbind(ts1,ts2,ts3,ts4,ts5)
- 
+
 early_hr2 <- early_hr
 dates_labels <- as.character(zoo::index(sat_data2)) %>%
-                 stringr::str_replace_all(":" , ".") %>%
-                    stringr::str_replace_all("-" , ".") %>%
-                      stringr::str_replace_all(" " , ".")
+        stringr::str_replace_all(":" , ".") %>%
+        stringr::str_replace_all("-" , ".") %>%
+        stringr::str_replace_all(" " , ".")
 
 early_hr2<-early_hr2[[paste0("X",dates_labels)]]
 
