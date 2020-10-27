@@ -9,6 +9,8 @@ library(raster)
 obs <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 sat <-readRDS("./data/processed/sat/sat_data2.rds")
 
+raster::projection(obs$xyz) <- raster::projection(sat$early_hr)
+
 # which point-stations are inside a pixel?
 sp::spplot(pointcount(sat$early_hr[[1]],
                       obs$xyz))
@@ -45,6 +47,6 @@ new_value <- cbind(new_value, id_to_merge)
 colnames(new_value) == new_xyz@data$CODE
 
 
-saveRDS(list(value = new_value,
+saveRDS(list(value = round(new_value, 1),
              xyz = new_xyz),
         file = "./data/processed/obs/obs_data_qc_v4.rds")

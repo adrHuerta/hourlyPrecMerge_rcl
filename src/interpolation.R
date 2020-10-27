@@ -3,13 +3,148 @@ idw_opt <- function(gauge_points,
                     idpR = seq(0.8, 3.5, 0.1))
 {
   
-  gstat::gstat(formula = gauge~1, locations = gridded_location)
-  
+  # Searching of best parameter 
   idpRange <- idpR
   mse <- rep(NA, length(idpRange))
   for (i in 1:length(idpRange)) {
-    mse[i] <- mean(gstat::krige.cv(as.formula(formula), gauge, nfold = nrow(gauge),
+    mse[i] <- mean(gstat::krige.cv(to_interpol ~ 1, gauge_points, nfold = nrow(gauge_points),
                                    nmax = Inf, set = list(idp = idpRange[i]), verbose = F)$residual^2)
   }
+  
+  # Best parameter 
+  poss <- which(mse %in% min(mse))
+  bestparam <- idpRange[poss]
+  
+  # IDW
+  gs <- gstat::gstat(formula = to_interpol ~ 1, locations = gauge_points, nmax = Inf, set = list(idp = bestparam))
+  response <- raster::interpolate(gridded_location, gs)
+  
+  return(response)
+  
+}
+
+GRA <- function(gauge_points,
+                gridded_cov)
+{
+  
+  # Getting data
+  obs <- gauge_points[, "obs"]
+  obs@data["cov"] <- raster::extract(gridded_cov, gauge_points)
+  
+  # Transformation
+  obs@data <- sqrt(obs@data)
+  obs@data["to_interpol"] <- obs@data["obs"] - obs@data["cov"]
+  
+  # IDW
+  to_interpol <- idw_opt(gauge_points = obs, gridded_location = gridded_cov)
+  response <- to_interpol + gridded_cov
+  
+  # Inverse-Transformation
+  response <- response^2
+  response[response < 0] <- 0
+  response <- round(response, 1)
+  
+  return(response)
+}
+
+GDA <- function(gauge_points,
+                gridded_cov)
+{
+  
+  obs <- gauge_points[, "obs"]
+  obs@data["cov"] <- raster::extract(gridded_cov, gauge_points)
+  
+  # Transformation
+  obs@data <- sqrt(obs@data)
+  obs@data["to_interpol"] <- (obs@data["obs"] + .1 )/(obs@data["cov"] + .1)
+  
+  # IDW
+  to_interpol <- idw_opt(gauge_points = obs, gridded_location = gridded_cov)
+  response <- to_interpol*gridded_cov
+  
+  # Inverse-Transformation
+  response <- response^2
+  response[response < 0] <- 0
+  response <- round(response, 1)
+  
+  return(response)
+  
+}
+
+RIDW <- function(gauge_points,
+                 gridded_cov)
+{
+  
+  obs <- gauge_points[, "obs"]
+  
+  # Transformation
+  obs@data <- sqrt(obs@data)
+  gridded_cov <- sqrt(gridded_cov)
+  
+  # Making names to model
+  names(gridded_cov) <- paste("cov", 1:length(names(gridded_cov)), sep = "")
+  
+  # LM
+  obs@data[names(gridded_cov)] <- raster::extract(gridded_cov, gauge_points)
+  
+  make_formula <- as.formula(paste("obs", "~", paste(names(gridded_cov), collapse = "+")))
+  linear_model <- lm(make_formula, data = obs@data)
+  obs@data["to_interpol"] <- linear_model$residuals
+  
+  # IDW
+  to_interpol <- idw_opt(gauge_points = obs, gridded_location = gridded_cov)
+  
+  if(nlayers(gridded_cov) == 1){
+    response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
+  } else {
+    response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
+    
+  }
+  response <- response_model + to_interpol
+  
+  # Inverse-Transformation
+  response <- response^2
+  response[response < 0] <- 0
+  response <- round(response, 1)
+  
+  return(response)
+}
+
+CM <- function(gauge_points,
+               gridded_cov)
+{
+  
+  # Transformation and gridded
+  obs <- gauge_points[, "obs"]
+  obs@data["to_interpol"] <- sqrt(obs@data)
+  obs <- idw_opt(gauge_points = obs, gridded_location = gridded_cov)
+  
+  gridded_cov <- sqrt(gridded_cov)
+  
+  # Making names to model
+  names(gridded_cov) <- paste("cov", 1:length(names(gridded_cov)), sep = "")
+  
+  # LM
+  obs_cov <- data.frame(obs = raster::getValues(obs))
+  obs_cov[names(gridded_cov)] <- raster::getValues(gridded_cov)
+  
+  make_formula <- as.formula(paste("obs", "~", paste(names(gridded_cov), collapse = "+")))
+  linear_model <- lm(make_formula, data = obs_cov)
+  values(obs) <- linear_model$residuals
+
+  if(nlayers(gridded_cov) == 1){
+    response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
+  } else {
+    response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
+    
+  }
+  
+  response <- response_model + obs
+  # Inverse-Transformation
+  response <- response^2
+  response[response < 0] <- 0
+  response <- round(response, 1)
+  
+  return(response)
   
 }
