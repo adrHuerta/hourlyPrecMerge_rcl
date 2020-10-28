@@ -5,7 +5,7 @@ require(xts)
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 sat_data <- readRDS("./data/processed/sat/sat_data2.rds")
 obs <- obs_data$value
-sat <- sat_data$value$value
+sat <- sat_data$value
 
 alt_obs <- obs_data$xyz$ALT
 
@@ -50,7 +50,7 @@ plot_events<- function(events,n_event,obs,sat,alt_obs){
                                         superpose = TRUE,auto.key = FALSE,type =c("b"), 
                                         grid=TRUE,par.settings =  my.par.setting,
                                         main =list(label=n_event,cex=0.9),xlab=c("horas"),
-                                        ylab =c("Precipitación(mm/hr)"))
+                                        ylab =c("PrecipitaciÃ³n(mm/hr)"))
  
             return(print(plot_obs1))
             }
