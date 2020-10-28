@@ -26,15 +26,20 @@ obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 # raster::writeRaster(list_raster,
 #                     filename = "./data/processed/early/early_chirilu.nc")
 
-# time since: 2014-01-01 05:00
+# time since: 2014-01-01 05:00 UTC -> LST (UTC-5)
 early_hr <- raster::readAll(raster::brick("./data/processed/early/early_chirilu.nc")) # to be used as .rds file
 raster::projection(early_hr) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+early_lst <- raster::getZ(early_hr) %>% strptime("%Y-%m-%d %H:%M:%S") - 1*60*60*5 # -5hours to LST
+early_hr <- raster::setZ(early_hr, early_lst)
+names(early_hr) <- early_lst
 
+# as OBS time begin since 2014-01-01 01:00:00
+early_hr <- early_hr[[2:raster::nlayers(early_hr)]]
+        
 #early time series complete 
 sat_data <- t(raster::extract(early_hr,obs_data$xyz))
 colnames(sat_data) <- colnames(obs_data$value)
-Time  <- seq(as.POSIXct("2014-01-01 01:00"), as.POSIXct("2020-01-01 00:00"), by='hour')
-sat_data <- xts::xts(sat_data, order.by = Time)
+sat_data <- xts::xts(sat_data, order.by = raster::getZ(early_hr) %>% strptime("%Y-%m-%d %H:%M:%S"))
 
 # extract ts period 11-03 2014-2019
 
@@ -52,7 +57,7 @@ dates_labels <- as.character(zoo::index(sat_data2)) %>%
         stringr::str_replace_all("-" , ".") %>%
         stringr::str_replace_all(" " , ".")
 
-early_hr2<-early_hr2[[paste0("X",dates_labels)]]
+early_hr2 <- early_hr2[[paste0("X",dates_labels)]]
 
 #save
 saveRDS(object=list(value = sat_data, 
