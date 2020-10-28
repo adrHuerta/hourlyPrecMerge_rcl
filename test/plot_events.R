@@ -5,8 +5,15 @@ require(xts)
 obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
 sat_data <- readRDS("./data/processed/sat/sat_data2.rds")
 obs <- obs_data$value
-sat <- sat_data$value
 
+#date sat single point pixcel
+early_hr <- sat_data$early_hr
+sat_data <- t(raster::extract(early_hr,obs_data$xyz))
+Time  <- index(obs)
+sat <- xts::xts(sat_data, order.by = Time)
+colnames(sat) <- colnames(obs)
+
+#heigth gauges
 alt_obs <- obs_data$xyz$ALT
 
 
@@ -43,7 +50,7 @@ plot_events<- function(events,n_event,obs,sat,alt_obs){
             my.par.setting <- list(superpose.symbol =
                                       list(col =viridis::viridis_pal(option="D")(37),pch=19), 
                                    superpose.line =
-                                      list(col = viridis::viridis_pal(option="D")(37),lwd=1))
+                                      list(col =viridis::viridis_pal(option="D")(37),lwd=1))
             
             
             plot_obs1 <-lattice::xyplot(pp~ dates|ind,data=df,groups = estacions,
@@ -65,7 +72,7 @@ dates_events <- c("2015-02-09 10:00/2015-02-10 07:00",
                   "2019-01-27 12:00/2019-01-30 23:00")
 
 for(i in 1:length(dates_events)){
-  png(paste0("./data/output/plots/plot_event_",i,".png"),res = 100)
+  png(paste0("./data/output/plots/plot_event_",i,".png"),width=1400,height=1000, res = 150)
   plot_events(events = dates_events[i],
               n_event = paste0("(E",i,")"),
               obs = obs,
