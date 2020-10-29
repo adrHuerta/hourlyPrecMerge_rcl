@@ -53,7 +53,7 @@ plot_events<- function(events,n_event,obs,sat,alt_obs){
                                       list(col =viridis::viridis_pal(option="D")(37),lwd=1))
             
             
-            plot_obs1 <-lattice::xyplot(pp~ dates|ind,data=df,groups = estacions,
+            plot_obs1 <-lattice::xyplot(pp~ dates|ind,data=df,groups = estacions,layout=c(1,2),
                                         superpose = TRUE,auto.key = FALSE,type =c("b"), 
                                         grid=TRUE,par.settings =  my.par.setting,
                                         main =list(label=n_event,cex=0.9),xlab=c("horas"),
@@ -72,7 +72,7 @@ dates_events <- c("2015-02-09 10:00/2015-02-10 07:00",
                   "2019-01-27 12:00/2019-01-30 23:00")
 
 for(i in 1:length(dates_events)){
-  png(paste0("./data/output/plots/plot_event_",i,".png"),width=1400,height=1000, res = 150)
+  png(paste0("./data/output/plots/plot_event_",i,".png"),width=1000,height=1400, res = 150)
   plot_events(events = dates_events[i],
               n_event = paste0("(E",i,")"),
               obs = obs,
