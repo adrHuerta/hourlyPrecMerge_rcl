@@ -80,7 +80,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -116,7 +116,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -152,7 +152,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -188,7 +188,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -224,7 +224,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -260,7 +260,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -297,7 +297,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -334,7 +334,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -371,7 +371,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -408,7 +408,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
@@ -445,7 +445,7 @@ lapply(Events_dates, function(event){
       model00
       
     }, 
-    mc.cores = 5) -> model_res
+    mc.cores = 7) -> model_res
     
     model_res <- raster::brick(model_res)
     raster::extract(model_res, XYZ_station_to_validate)
