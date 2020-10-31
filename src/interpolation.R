@@ -71,7 +71,7 @@ ok_aut <- function(gauge_points,
   }
 }
 
-GRA <- function(gauge_points,
+GDA <- function(gauge_points,
                 gridded_cov)
 {
   
@@ -95,7 +95,7 @@ GRA <- function(gauge_points,
   return(response)
 }
 
-GDA <- function(gauge_points,
+GRA <- function(gauge_points,
                 gridded_cov)
 {
   
