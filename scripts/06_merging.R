@@ -97,32 +97,7 @@ lapply(Events_dates, function(event){
   
 }) -> model02_res 
 
-# model03: GRA
-lapply(Events_dates, function(event){
-  
-  event_obs_data <- obs$value[ paste(event, collapse = "/") ]
-  event_obs_data <- event_obs_data[, colSums(is.na(event_obs_data)) != nrow(event_obs_data)]
-  XYZ_event <- obs$xyz[match(colnames(event_obs_data), obs$xyz$CODE), ]
-  
-  lapply(as.character(time(event_obs_data)), function(time_step){
-    
-    XYZ_event@data["obs"] <- event_obs_data[time_step,] %>% as.numeric()
-    gauge_points_time <- XYZ_event %>% .[complete.cases(.@data),]
-    gridded_cov_1_time <- subset(sat, which(raster::getZ(sat) == time_step) - seq(0:0, 0))
-    #gridded_cov_2_time <- subset(sat, which(raster::getZ(sat) == time_step) - seq(0:0, 1))
-    
-    model00 <- GRA(gauge_points = gauge_points_time, gridded_cov = gridded_cov_1_time)
-    names(model00) <- time_step
-    model00 <- raster::setZ(model00, time_step)
-    model00
-    
-  }) -> model_res
-  
-  raster::brick(model_res)  
-  
-}) -> model03_res 
-
-# model04: GDA
+# model03: GDA
 lapply(Events_dates, function(event){
   
   event_obs_data <- obs$value[ paste(event, collapse = "/") ]
@@ -137,6 +112,31 @@ lapply(Events_dates, function(event){
     #gridded_cov_2_time <- subset(sat, which(raster::getZ(sat) == time_step) - seq(0:0, 1))
     
     model00 <- GDA(gauge_points = gauge_points_time, gridded_cov = gridded_cov_1_time)
+    names(model00) <- time_step
+    model00 <- raster::setZ(model00, time_step)
+    model00
+    
+  }) -> model_res
+  
+  raster::brick(model_res)  
+  
+}) -> model03_res 
+
+# model04: GRA
+lapply(Events_dates, function(event){
+  
+  event_obs_data <- obs$value[ paste(event, collapse = "/") ]
+  event_obs_data <- event_obs_data[, colSums(is.na(event_obs_data)) != nrow(event_obs_data)]
+  XYZ_event <- obs$xyz[match(colnames(event_obs_data), obs$xyz$CODE), ]
+  
+  lapply(as.character(time(event_obs_data)), function(time_step){
+    
+    XYZ_event@data["obs"] <- event_obs_data[time_step,] %>% as.numeric()
+    gauge_points_time <- XYZ_event %>% .[complete.cases(.@data),]
+    gridded_cov_1_time <- subset(sat, which(raster::getZ(sat) == time_step) - seq(0:0, 0))
+    #gridded_cov_2_time <- subset(sat, which(raster::getZ(sat) == time_step) - seq(0:0, 1))
+    
+    model00 <- GRA(gauge_points = gauge_points_time, gridded_cov = gridded_cov_1_time)
     names(model00) <- time_step
     model00 <- raster::setZ(model00, time_step)
     model00

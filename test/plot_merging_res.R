@@ -7,7 +7,7 @@ merging_events <- readRDS("./data/processed/merging/merging_grid.RDS")
 # names of methods
 names(merging_events) <- c("SAT", 
                            "IDW", "OK",
-                           "GRA", "GDA",
+                           "GDA", "GRA",
                            "RIDW", "RIDW2","CM_IDW",
                            "RK", "RK2", "CM_OK")
 # names of events
