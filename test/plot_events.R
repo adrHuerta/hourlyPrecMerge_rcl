@@ -48,9 +48,9 @@ plot_events<- function(events,n_event,obs,sat,alt_obs){
             df$data <-ind
             
             my.par.setting <- list(superpose.symbol =
-                                      list(col =viridis::viridis_pal(option="D")(29),pch=19), 
+                                      list(col =viridis::viridis_pal(option="D")(ncol(obs)),pch=19), 
                                    superpose.line =
-                                      list(col =viridis::viridis_pal(option="D")(29),lwd=1))
+                                      list(col =viridis::viridis_pal(option="D")(ncol(obs)),lwd=1))
             
             
             plot_obs1 <-lattice::xyplot(pp~ dates|ind,data=df,groups = estacions,layout=c(1,2),
