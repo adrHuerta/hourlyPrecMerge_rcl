@@ -9,16 +9,6 @@ calculate_metrics <- function(obs,sat,type_of_validation)
               rmsE <- hydroGOF::rmse(y,x)
               maE  <- hydroGOF::mae(y,x)
               MAD  <- median(abs(x-y))
-              # <- hydroGOF::rmse(y,x,na.rm=TRUE)
-              # 
-              # if(bias>100){
-              #   bias=100
-              # } else if (bias<(-100)){
-              #   bias=c(-100)
-              # }else {
-              #   bias=bias
-              # }
-              
               bias <- c(bias/100)
               table <- data.frame(corr,bias,MAD,rmsE,maE)
               }
