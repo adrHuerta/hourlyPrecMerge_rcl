@@ -2,7 +2,7 @@ rm(list = ls())
 require(xts)
 "%>%" = magrittr::`%>%`
 
-obs_data <- readRDS("./data/processed/obs/obs_data_qc_v3.rds")
+obs_data <- readRDS("./data/processed/obs/obs_data_qc_v4.rds")
 sat_data <- readRDS("./data/processed/sat/sat_data2.rds")
 obs <- obs_data$value
 
@@ -48,9 +48,9 @@ plot_events<- function(events,n_event,obs,sat,alt_obs){
             df$data <-ind
             
             my.par.setting <- list(superpose.symbol =
-                                      list(col =viridis::viridis_pal(option="D")(37),pch=19), 
+                                      list(col =viridis::viridis_pal(option="D")(29),pch=19), 
                                    superpose.line =
-                                      list(col =viridis::viridis_pal(option="D")(37),lwd=1))
+                                      list(col =viridis::viridis_pal(option="D")(29),lwd=1))
             
             
             plot_obs1 <-lattice::xyplot(pp~ dates|ind,data=df,groups = estacions,layout=c(1,2),
