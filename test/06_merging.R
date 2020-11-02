@@ -16,7 +16,7 @@ E3_results <- list()
 
 for(time_step_i in seq_along(time(E3))){
 
-  time_step_i = 39
+  time_step_i = 33
   time_step = as.character(time(E3)[time_step_i])
   XYZ@data["obs"] <- E3[time_step,] %>% as.numeric()
   gauge_points_time <- XYZ %>% .[complete.cases(.@data),]
