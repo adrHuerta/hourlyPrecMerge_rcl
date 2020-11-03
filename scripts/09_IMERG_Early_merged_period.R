@@ -48,6 +48,8 @@ for(i in 2:nrow(obs$value)){
   data_xyz <- obs$xyz
   data_xyz$OBS=as.numeric(data_obs)
   
+  label_date <-gsub(":", ".",as.character(index(data_obs)))
+  
   # EMA-grilla
   data_obs<- make_single_point(pts = data_xyz,
                                 rgrid = sat[[i]])$xyz %>%
@@ -55,8 +57,17 @@ for(i in 2:nrow(obs$value)){
   
   colnames(data_obs@data)[9] <- "obs"
   
+  
+  
+  
   if(sum(is.na(obs$value[i,]))==ncol(obs$value)){
-    chirilu_gridded = NA
+
+    chirilu_gridded = raster::raster(nrow=13, ncol=14)
+    
+    raster::writeRaster(chirilu_gridded, 
+                        file=paste0("./data/processed/merging/IMERG-Early_merging_",label_date,".tiff"),overwrite=TRUE)
+    
+    
   } else  {
     
     # Mezcla
@@ -74,7 +85,7 @@ for(i in 2:nrow(obs$value)){
                                      RK_res, RK2_res, CM_OK_res) %>%
     raster::calc(fun = function(x) median(x, na.rm = TRUE))
     
-    label_date <-gsub(":", ".",as.character(index(data_obs)))
+   
     
     raster::writeRaster(chirilu_gridded, 
                         file=paste0("./data/processed/merging/IMERG-Early_merging_",label_date,".tiff"),overwrite=TRUE)
