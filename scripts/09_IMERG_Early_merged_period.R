@@ -98,11 +98,11 @@ for(i in time_ini:nrow(obs$value)){
     
     chirilu_gridded = NA
     
-  } else if(sum(is.na(obs$value[i,])) < 9 ) {
+  } else if(sum(is.na(obs$value[i,])) > 9 ) {
     
-    chirilu_gridded = sat[[i]]
+    chirilu_gridded = NA
   
-  } else if(sum(is.na(obs$value[i,])) >= 9 ){
+  } else if(sum(is.na(obs$value[i,])) < 9 ){
     
     # Mezcla
     IDW_res<- IDW(gauge_points = data_obs, gridded_cov = sat[[i]])
