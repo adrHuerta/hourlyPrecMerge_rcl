@@ -125,8 +125,8 @@ foreach(i = time_ini:nrow(obs$value)) %dopar%{
                                      RK_res, RK2_res, CM_OK_res) %>%
     raster::calc(fun = function(x) median(x, na.rm = TRUE))
     
-    chirilu_gridded <- raster::setZ(chirilu_gridded, raster::getZ(sat[[i]]))
-    names(chirilu_gridded) <- names(sat[[i]])
+    chirilu_gridded <- raster::setZ(chirilu_gridded, raster::getZ(cov_sat[[1]]))
+    names(chirilu_gridded) <- names(cov_sat[[1]])
     
   }
   
