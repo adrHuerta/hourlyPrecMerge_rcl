@@ -80,61 +80,54 @@ time_ini <- which(as.character(time(obs$value)) =="2014-11-01 00:00:00")
 
 ### 3.-Producto grillado CHIRILU
 
-library(foreach)
-
-
-cl <- parallel::makeCluster(8)
-doParallel::registerDoParallel(cl)
-
-foreach(i = time_ini:nrow(obs$value)) %dopar%{
-
-  data_obs <- obs$value[i, ]
-  data_xyz <- obs$xyz
-  data_xyz$OBS = as.numeric(data_obs)
-  
-  label_date <- format(time(data_obs), "%Y-%m-%d-%H")
-    
-  data_obs <- data_xyz %>% .[complete.cases(.@data),]
-  colnames(data_obs@data)[9] <- "obs"
-  
-  cov_sat <- sat[[i:c(i-1)]]
-  cov_sat[[1]][cov_sat[[1]] < 0] <- 0
-  cov_sat[[2]][cov_sat[[2]] < 0] <- 0
-
-  if( length(data_obs@data$obs) < 10) {
-    
-    chirilu_gridded <- cov_sat[[1]]
-    raster::values(chirilu_gridded) <- NA
-  
-  } else {
-    
-    sat[[1]][sat[[1]] < 0] <- 0
-    
-    # Mezcla
-    IDW_res <- IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    OK_res <- OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    RIDW_res <- RIDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    RIDW2_res <- RIDW(gauge_points = data_obs, gridded_cov = cov_sat)
-    CM_IDW_res <- CM_IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    RK_res <- RK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    RK2_res <- RK(gauge_points = data_obs, gridded_cov = cov_sat)
-    CM_OK_res <- CM_OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
-    
-    chirilu_gridded <- raster::brick(IDW_res, OK_res,
-                                     RIDW_res, RIDW2_res, CM_IDW_res,
-                                     RK_res, RK2_res, CM_OK_res) %>%
-    raster::calc(fun = function(x) median(x, na.rm = TRUE))
-    
-    chirilu_gridded <- raster::setZ(chirilu_gridded, raster::getZ(cov_sat[[1]]))
-    names(chirilu_gridded) <- names(cov_sat[[1]])
-    
-  }
-  
-  raster::writeRaster(chirilu_gridded,
-                      file = file.path(".", "data", "processed", "merging", "chiriluV2", paste0("chiriluV2_", label_date,".nc")),
-                      overwrite = TRUE,
-                      format = "CDF",
-                      varname = "precp")
-  
-  
-}
+parallel::mclapply(time_ini:nrow(obs$value),
+                   function(i){
+                     
+                     data_obs <- obs$value[i, ]
+                     data_xyz <- obs$xyz
+                     data_xyz$OBS = as.numeric(data_obs)
+                     
+                     label_date <- format(time(data_obs), "%Y-%m-%d-%H")
+                     
+                     data_obs <- data_xyz %>% .[complete.cases(.@data),]
+                     colnames(data_obs@data)[9] <- "obs"
+                     
+                     cov_sat <- sat[[i:c(i-1)]]
+                     cov_sat[[1]][cov_sat[[1]] < 0] <- 0
+                     cov_sat[[2]][cov_sat[[2]] < 0] <- 0
+                     
+                     if( length(data_obs@data$obs) < 10) {
+                       
+                       chirilu_gridded <- cov_sat[[1]]
+                       raster::values(chirilu_gridded) <- NA
+                       
+                     } else {
+                       
+                       # Mezcla
+                       IDW_res <- IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       OK_res <- OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       RIDW_res <- RIDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       RIDW2_res <- RIDW(gauge_points = data_obs, gridded_cov = cov_sat)
+                       CM_IDW_res <- CM_IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       RK_res <- RK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       RK2_res <- RK(gauge_points = data_obs, gridded_cov = cov_sat)
+                       CM_OK_res <- CM_OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]])
+                       
+                       chirilu_gridded <- raster::brick(IDW_res, OK_res,
+                                                        RIDW_res, RIDW2_res, CM_IDW_res,
+                                                        RK_res, RK2_res, CM_OK_res) %>%
+                         raster::calc(fun = function(x) median(x, na.rm = TRUE))
+                       
+                       chirilu_gridded <- raster::setZ(chirilu_gridded, raster::getZ(cov_sat[[1]]))
+                       names(chirilu_gridded) <- names(cov_sat[[1]])
+                       
+                     }
+                     
+                     raster::writeRaster(chirilu_gridded,
+                                         file = file.path(".", "data", "processed", "merging", "chiriluV2", paste0("chiriluV2_", label_date,".nc")),
+                                         overwrite = TRUE,
+                                         format = "CDF",
+                                         varname = "precp")
+                    
+                   },
+                   mc.cores = 5)
