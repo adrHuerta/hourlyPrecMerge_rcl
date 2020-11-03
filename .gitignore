@@ -39,13 +39,12 @@ vignettes/*.pdf
 .Renviron
 
 # To heavy files
+/data/shapes
 /data/raw/early
 /data/processed/early
+/data/processed/merging/chiriluV2
 /data/raw/obs/DR_Lima_QC1.csv
 /papers
-
-# To heavy shapes
-/data/shapes
 
 # output plots
 /data/output/plots
