@@ -94,11 +94,7 @@ for(i in time_ini:nrow(obs$value)){
   colnames(data_obs@data)[9] <- "obs"
   
 
-  if(sum(is.na(obs$value[i,]))==ncol(obs$value)){
-    
-    chirilu_gridded = NA
-    
-  } else if(sum(is.na(obs$value[i,])) >= 10 ) {
+  if(sum(is.na(obs$value[i,])) >= 10 ) {
     
     chirilu_gridded = NA
   
