@@ -113,7 +113,7 @@ plot.d <- lattice::xyplot(value~ factor,data=obs_group,groups = est,
 png("./data/output/plots/plot_obs_clim.png",width=900,height=850, res = 100)
 
 gridExtra::grid.arrange(plot.a,plot.b,
-                        plot.d,plot.c,
+                        plot.c,plot.d,
                         ncol=2,nrow=2)
 
 dev.off()
