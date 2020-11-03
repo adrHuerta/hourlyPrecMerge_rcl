@@ -13,7 +13,7 @@ qc_extreme_check <- function(spatial_point,
 {
   
   IDs <- spatial_point@data$CODE
-  MONTH <- strsplit(unique(spatial_point@data$DATE), "-")[[1]][2]
+  MONTH <- strsplit(as.character(unique(spatial_point@data$DATE)), "-")[[1]][2]
   daily_monthly_limits <- daily_monthly_limits[match(IDs, rownames(daily_monthly_limits)), as.numeric(MONTH)]
   
   obs_value <- spatial_point@data[, "OBS"]

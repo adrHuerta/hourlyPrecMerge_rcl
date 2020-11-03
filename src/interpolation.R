@@ -62,7 +62,7 @@ ok_aut <- function(gauge_points,
     # Ordinary Kriging
     gs <- gstat::gstat(formula = to_interpol ~ 1, locations = gauge_points2, model = variogram_fit$var_model)
     kp <- predict(gs, gridded_location2)
-    response <- brick(kp)
+    response <- raster::brick(kp)
     raster::projection(response) <- raster::projection(gridded_location)
     
     return(response[[1]])
@@ -142,7 +142,7 @@ RIDW <- function(gauge_points,
   # IDW
   to_interpol <- idw_opt(gauge_points = obs, gridded_location = raster::mean(gridded_cov))
   
-  if(nlayers(gridded_cov) == 1){
+  if(raster::nlayers(gridded_cov) == 1){
     response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
   } else {
     response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
@@ -181,7 +181,7 @@ RK <- function(gauge_points,
   # OK
   to_interpol <- ok_aut(gauge_points = obs, gridded_location = raster::mean(gridded_cov))
   
-  if(nlayers(gridded_cov) == 1){
+  if(raster::nlayers(gridded_cov) == 1){
     response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
   } else {
     response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
@@ -259,9 +259,9 @@ CM_IDW <- function(gauge_points,
   
   make_formula <- as.formula(paste("obs", "~", paste(names(gridded_cov), collapse = "+")))
   linear_model <- lm(make_formula, data = obs_cov)
-  values(obs) <- linear_model$residuals
+  raster::values(obs) <- linear_model$residuals
 
-  if(nlayers(gridded_cov) == 1){
+  if(raster::nlayers(gridded_cov) == 1){
     response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
   } else {
     response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
@@ -298,9 +298,9 @@ CM_OK <- function(gauge_points,
   
   make_formula <- as.formula(paste("obs", "~", paste(names(gridded_cov), collapse = "+")))
   linear_model <- lm(make_formula, data = obs_cov)
-  values(obs) <- linear_model$residuals
+  raster::values(obs) <- linear_model$residuals
   
-  if(nlayers(gridded_cov) == 1){
+  if(raster::nlayers(gridded_cov) == 1){
     response_model <- linear_model$coefficients[1] + linear_model$coefficients[-1]*gridded_cov
   } else {
     response_model <- linear_model$coefficients[1] + sum(linear_model$coefficients[-1]*gridded_cov)
