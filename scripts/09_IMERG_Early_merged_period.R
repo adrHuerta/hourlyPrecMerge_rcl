@@ -118,7 +118,7 @@ for(i in time_ini:nrow(obs$value)){
     
     
     raster::writeRaster(chirilu_gridded, 
-                        file=paste0("./data/processed/merging/Chirilu.v2",label_date,".tiff"),overwrite=TRUE)
+                        file=paste0("./data/processed/merging/Chirilu.v2_",label_date,".tiff"),overwrite=TRUE)
     
   }
   
