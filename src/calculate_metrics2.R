@@ -4,11 +4,11 @@ calculate_metrics <- function(obs,sat,type_of_validation)
 
   #calculate
   metrics_calculate <- function(x,y){
-              corr <- hydroGOF::rPearson(y, x)
-              bias <- hydroGOF::pbias(y, x)
-              rmsE <- hydroGOF::rmse(y,x)
-              maE  <- hydroGOF::mae(y,x)
-              MAD  <- median(abs(x-y))
+              corr <- hydroGOF::rPearson(y, x, na.rm=TRUE)
+              bias <- hydroGOF::pbias(y, x, na.rm=TRUE)
+              rmsE <- hydroGOF::rmse(y,x, na.rm=TRUE)
+              maE  <- hydroGOF::mae(y,x, na.rm=TRUE)
+              MAD  <- median(abs(x-y),na.rm=TRUE)
               bias <- c(bias/100)
               table <- data.frame(corr,bias,MAD,rmsE,maE)
               }
