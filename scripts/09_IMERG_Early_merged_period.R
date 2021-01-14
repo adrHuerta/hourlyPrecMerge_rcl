@@ -76,7 +76,9 @@ obs$value %>%
 ts_non_na <- xts::xts(ts_non_na, time(obs$value))
 ts_non_na["2014-11-01-00/2014-11-01-23"] %>% plot(type = "p")
 
-time_ini <- which(as.character(time(obs$value)) =="2014-11-01 00:00:00")
+## Para testear
+# time_ini <- which(as.character(time(obs$value)) =="2017-03-16 16:00:00")
+# i = time_ini
 
 ### 3.-Producto grillado CHIRILU
 
@@ -131,3 +133,72 @@ parallel::mclapply(time_ini:nrow(obs$value),
                     
                    },
                    mc.cores = 5)
+
+# Errores que se encontro y resolvio
+# time_errors = c(which(as.character(time(obs$value)) =="2017-04-26 20:00:00"),
+#                 which(as.character(time(obs$value)) =="2018-12-29 07:00:00"),
+#                 which(as.character(time(obs$value)) =="2019-12-14 20:00:00"),
+#                 which(as.character(time(obs$value)) =="2019-12-23 06:00:00"))
+# 
+# parallel::mclapply(time_errors,
+#                         function(i){
+#                           
+#                           data_obs <- obs$value[i, ]
+#                           data_xyz <- obs$xyz
+#                           data_xyz$OBS = as.numeric(data_obs)
+#                           
+#                           label_date <- format(time(data_obs), "%Y-%m-%d-%H")
+#                           
+#                           data_obs <- data_xyz %>% .[complete.cases(.@data),]
+#                           colnames(data_obs@data)[9] <- "obs"
+#                           
+#                           cov_sat <- sat[[i:c(i-1)]]
+#                           cov_sat[[1]][cov_sat[[1]] < 0] <- 0
+#                           cov_sat[[2]][cov_sat[[2]] < 0] <- 0
+#                           
+#                           if( length(data_obs@data$obs) < 10) {
+#                             
+#                             chirilu_gridded <- cov_sat[[1]]
+#                             raster::values(chirilu_gridded) <- NA
+#                             
+#                           } else {
+#                             
+#                             # Mezcla # tryCatch (some errors in variogram fitting, see "2015-01-24-23"). At least one method should have data
+#                             IDW_res <- tryCatch(IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             OK_res <- tryCatch(OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             RIDW_res <- tryCatch(RIDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             RIDW2_res <- tryCatch(RIDW(gauge_points = data_obs, gridded_cov = cov_sat), error = function(e) NULL)
+#                             CM_IDW_res <- tryCatch(CM_IDW(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             RK_res <- tryCatch(RK(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             RK2_res <- tryCatch(RK(gauge_points = data_obs, gridded_cov = cov_sat), error = function(e) NULL)
+#                             CM_OK_res <- tryCatch(CM_OK(gauge_points = data_obs, gridded_cov = cov_sat[[1]]), error = function(e) NULL)
+#                             
+#                             
+#                             chirilu_gridded <- raster::brick(IDW_res, OK_res,
+#                                                              RIDW_res, RIDW2_res, CM_IDW_res,
+#                                                              RK_res, RK2_res, CM_OK_res)
+#                             
+#                             for(xy in 1:raster::nlayers(chirilu_gridded)){
+#                               
+#                               if(max(chirilu_gridded[[xy]]@data@values) > (3*max(data_obs@data$obs))){
+#                                 chirilu_gridded[[xy]]@data@values <- rep(NA, length(chirilu_gridded[[xy]]@data@values))
+#                               }
+#                               
+#                             }
+#                             
+#                             
+#                             chirilu_gridded <- raster::calc(chirilu_gridded, fun = function(x) median(x, na.rm = TRUE))
+#                             chirilu_gridded <- raster::setZ(chirilu_gridded, raster::getZ(cov_sat[[1]]))
+#                             names(chirilu_gridded) <- names(cov_sat[[1]])
+#                             
+#                           }
+#                           
+#                           raster::writeRaster(chirilu_gridded,
+#                                               file = file.path(".", "data", "processed", "merging", "chiriluV2", paste0("chiriluV2_", label_date,".nc")),
+#                                               overwrite = TRUE,
+#                                               format = "CDF",
+#                                               varname = "precp")
+#                           
+#                         },
+#                         mc.cores = 10)
+# 

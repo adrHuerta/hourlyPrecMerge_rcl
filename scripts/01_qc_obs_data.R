@@ -16,8 +16,13 @@ ppisco_p_max_monthly <- raster::zApply(ppisco_p, by = format(ppisco_p@z$time, "%
 daily_max_monthly <- data.frame(raster::extract(ppisco_p_max_monthly, obs_data$xyz))
 rownames(daily_max_monthly) <- obs_data$xyz$CODE
 
-# qc of raw data
+# qc of raw data 
 obs_data_qc <- obs_data
+
+## ¡aqui testea el i (en el for) para la fecha que quieres!
+## los datos que pasan por QC luego son utilizados en el script 09_IMERG_Early_merged_period.R 
+## time_ini <- which(as.character(time(obs_data$value)) == "2017-03-15 15:00:00")
+## i = time_ini
 
 for(i in 1:dim(obs_data$value)[1]){
   
@@ -31,10 +36,10 @@ for(i in 1:dim(obs_data$value)[1]){
     next
     
   } else {
-    
-    qc_internal_consistency_check(spatial_point = xyz) %>%
-      qc_extreme_check(spatial_point = ., daily_monthly_limits = daily_max_monthly)  %>%
-      qc_spatial_consistency(spatial_point = .) -> xyz_qc
+    # QC
+    qc_internal_consistency_check(spatial_point = xyz) %>% # QC1
+      qc_extreme_check(spatial_point = ., daily_monthly_limits = daily_max_monthly)  %>% # QC2
+      qc_spatial_consistency(spatial_point = .) -> xyz_qc # QC3
     
     zoo::coredata(obs_data_qc$value[i, ]) <- xyz_qc@data$OBS
     print(i)
